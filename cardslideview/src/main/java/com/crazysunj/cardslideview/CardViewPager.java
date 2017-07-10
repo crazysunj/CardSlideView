@@ -17,6 +17,7 @@ package com.crazysunj.cardslideview;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -34,6 +35,7 @@ import java.util.List;
 public class CardViewPager extends ViewPager {
 
     private int mMaxOffset;
+    private boolean mIsLoop = false;
 
     public CardViewPager(Context context) {
         this(context, null);
@@ -60,21 +62,34 @@ public class CardViewPager extends ViewPager {
                 .getDimensionPixelOffset(R.styleable.CardViewPager_card_max_offset,
                         (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 180, displayMetrics));
 
+        mIsLoop = typedArray.getBoolean(R.styleable.CardViewPager_card_loop, mIsLoop);
+
         typedArray.recycle();
     }
 
 
     public <T> void bind(FragmentManager fm, CardHandler<T> handler, List<T> data) {
+        List<CardItem> cardItems = getCardItems(handler, data, mIsLoop);
+        setPageTransformer(false, new CardTransformer(mMaxOffset));
+        CardPagerAdapter adapter = new CardPagerAdapter(fm, cardItems, mIsLoop);
+        setAdapter(adapter);
+    }
 
+    @NonNull
+    private <T> List<CardItem> getCardItems(CardHandler<T> handler, List<T> data, boolean isLoop) {
         List<CardItem> cardItems = new ArrayList<CardItem>();
-        for (int i = 0, size = data.size(); i < size; i++) {
-            T t = data.get(i);
+        int dataSize = data.size();
+        boolean isExpand = isLoop && dataSize < 6;
+        int radio = 6 / dataSize < 2 ? 2 : 6 / dataSize;
+        int size = isExpand ? dataSize * radio : dataSize;
+        for (int i = 0; i < size; i++) {
+            int position = isExpand ? i % dataSize : i;
+            T t = data.get(position);
             CardItem<T> item = new CardItem<T>();
             item.bindHandler(handler);
-            item.bindData(t, i);
+            item.bindData(t, position);
             cardItems.add(item);
         }
-        setPageTransformer(false, new CardTransformer(mMaxOffset));
-        setAdapter(new CardPagerAdapter(fm, cardItems));
+        return cardItems;
     }
 }

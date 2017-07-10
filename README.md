@@ -1,5 +1,5 @@
 # CardSlideView
-一行代码实现ViewPager卡片效果
+一行代码实现ViewPager卡片效果，支持无限循环
 
 ## 效果
 
@@ -37,7 +37,7 @@ public class MyCardHandler implements CardHandler<String> {
 ## gradle依赖
 
 ```
-compile 'com.crazysunj:cardslideview:1.0.0'
+compile 'com.crazysunj:cardslideview:1.1.0'
 ```
 
 ## 感谢
