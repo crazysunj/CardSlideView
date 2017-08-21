@@ -37,7 +37,7 @@ public class MyCardHandler implements CardHandler<String> {
 ## gradle依赖
 
 ```
-compile 'com.crazysunj:cardslideview:1.1.0'
+compile 'com.crazysunj:cardslideview:1.1.1'
 ```
 
 ## 感谢
