@@ -24,6 +24,7 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,7 +69,7 @@ public class CardViewPager extends ViewPager {
     }
 
 
-    public <T> void bind(FragmentManager fm, CardHandler<T> handler, List<T> data) {
+    public <T extends Serializable> void bind(FragmentManager fm, CardHandler<T> handler, List<T> data) {
         List<CardItem> cardItems = getCardItems(handler, data, mIsLoop);
         setPageTransformer(false, new CardTransformer(mMaxOffset));
         CardPagerAdapter adapter = new CardPagerAdapter(fm, cardItems, mIsLoop);
@@ -76,7 +77,7 @@ public class CardViewPager extends ViewPager {
     }
 
     @NonNull
-    private <T> List<CardItem> getCardItems(CardHandler<T> handler, List<T> data, boolean isLoop) {
+    private <T extends Serializable> List<CardItem> getCardItems(CardHandler<T> handler, List<T> data, boolean isLoop) {
         List<CardItem> cardItems = new ArrayList<CardItem>();
         int dataSize = data.size();
         boolean isExpand = isLoop && dataSize < 6;

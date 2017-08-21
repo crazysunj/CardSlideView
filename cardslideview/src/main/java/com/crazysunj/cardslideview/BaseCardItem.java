@@ -16,6 +16,7 @@
 package com.crazysunj.cardslideview;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 /**
@@ -25,7 +26,10 @@ import android.support.v4.app.Fragment;
  */
 public class BaseCardItem<T> extends Fragment {
 
-    protected CardHandler<T> mHandler;
+    protected static final String ARGUMENTS_HANDLER = "cards_handler";
+    protected static final String ARGUMENTS_DATA = "cards_data";
+    protected static final String ARGUMENTS_POSITION = "cards_position";
+
     protected Context mContext;
 
     @Override
@@ -35,6 +39,11 @@ public class BaseCardItem<T> extends Fragment {
     }
 
     public void bindHandler(CardHandler<T> handler) {
-        mHandler = handler;
+        Bundle bundle = getArguments();
+        if (bundle == null) {
+            bundle = new Bundle();
+            setArguments(bundle);
+        }
+        bundle.putSerializable(ARGUMENTS_HANDLER, handler);
     }
 }

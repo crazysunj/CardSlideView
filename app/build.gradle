@@ -25,7 +25,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 //    compile project(':cardslideview')
-    compile 'com.crazysunj:cardslideview:1.1.0'
+    compile 'com.crazysunj:cardslideview:1.1.1'
 //    compile 'com.github.bumptech.glide:glide:3.8.0'
     
 
