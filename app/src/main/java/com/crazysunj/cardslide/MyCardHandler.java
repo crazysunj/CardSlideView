@@ -14,13 +14,13 @@ import com.crazysunj.cardslideview.CardHandler;
  * Created by sunjian on 2017/6/24.
  */
 
-public class MyCardHandler implements CardHandler<String> {
+public class MyCardHandler implements CardHandler<MyBean> {
 
     @Override
-    public View onBind(final Context context, final String data, final int position) {
+    public View onBind(final Context context, final MyBean data, final int position) {
         View view = View.inflate(context, R.layout.item, null);
         ImageView imageView = (ImageView) view.findViewById(R.id.image);
-        Glide.with(context).load(data).into(imageView);
+        Glide.with(context).load(data.getImg()).into(imageView);
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
