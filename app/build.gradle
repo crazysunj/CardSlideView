@@ -25,16 +25,16 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 //    compile project(':cardslideview')
-    compile 'com.crazysunj:cardslideview:1.1.1'
-//    compile 'com.github.bumptech.glide:glide:3.8.0'
-    
+    //    compile 'com.github.bumptech.glide:glide:3.8.0'
 
+
+    compile 'com.crazysunj:cardslideview:1.1.1'
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.github.bumptech.glide:glide:4.0.0-RC1'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0-RC1'
     testCompile 'junit:junit:4.12'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0-RC1'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.1'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
 }
