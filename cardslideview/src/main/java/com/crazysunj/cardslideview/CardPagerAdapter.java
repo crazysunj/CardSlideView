@@ -29,6 +29,8 @@ import java.util.List;
  */
 class CardPagerAdapter extends FragmentStatePagerAdapter {
 
+    private static final int MAX_VALUE = Integer.MAX_VALUE;
+
     private List<CardItem> mCardItems;
     private boolean mIsLoop;
 
@@ -45,7 +47,7 @@ class CardPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return mIsLoop ? Integer.MAX_VALUE : getRealCount();
+        return mIsLoop ? MAX_VALUE : getRealCount();
     }
 
     @Override
@@ -78,7 +80,8 @@ class CardPagerAdapter extends FragmentStatePagerAdapter {
             if (position == 0) {
                 position = getFristItem();
             } else if (position == getCount() - 1) {
-                position = getLastItem();
+                final int realCount = getRealCount();
+                position = getLastItem(position % realCount);
             }
             viewPager.setCurrentItem(position, false);
         }
@@ -90,11 +93,11 @@ class CardPagerAdapter extends FragmentStatePagerAdapter {
 
     private int getFristItem() {
         int realCount = getRealCount();
-        return Integer.MAX_VALUE / realCount / 2 * realCount;
+        return MAX_VALUE / realCount / 2 * realCount;
     }
 
-    private int getLastItem() {
+    private int getLastItem(int index) {
         int realCount = getRealCount();
-        return Integer.MAX_VALUE / realCount / 2 * realCount - 1;
+        return MAX_VALUE / realCount / 2 * realCount + index;
     }
 }

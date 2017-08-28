@@ -78,12 +78,13 @@ public class MainActivity extends AppCompatActivity {
             "https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3210647450,3365972530&fm=26&gp=0.jpg",
             "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1152354189,4075004834&fm=26&gp=0.jpg",
             "https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=1241938828,3177192306&fm=26&gp=0.jpg"};
+    private CardViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        CardViewPager viewPager = (CardViewPager) findViewById(R.id.viewpager);
+        viewPager = (CardViewPager) findViewById(R.id.viewpager);
         List<MyBean> list = new ArrayList<MyBean>();
         list.add(new MyBean("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=1673698395,2662990695&fm=26&gp=0.jpg"));
         list.add(new MyBean("https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1077412268,1486449152&fm=26&gp=0.jpg"));
@@ -96,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         list.add(new MyBean("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=800274749,3560269987&fm=26&gp=0.jpg"));
         Log.d("MainActivity", "list:" + list);
         viewPager.bind(getSupportFragmentManager(), new MyCardHandler(), list);
+
 //        viewPager.bind(getSupportFragmentManager(), new MyCardHandler(), Arrays.asList(imageArray));
     }
 }

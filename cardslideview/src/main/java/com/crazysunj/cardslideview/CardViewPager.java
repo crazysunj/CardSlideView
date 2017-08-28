@@ -36,7 +36,9 @@ import java.util.List;
 public class CardViewPager extends ViewPager {
 
     private int mMaxOffset;
+    private float mScaleRate;
     private boolean mIsLoop = false;
+    private CardTransformer mTransformer;
 
     public CardViewPager(Context context) {
         this(context, null);
@@ -65,13 +67,29 @@ public class CardViewPager extends ViewPager {
 
         mIsLoop = typedArray.getBoolean(R.styleable.CardViewPager_card_loop, mIsLoop);
 
+        mScaleRate = typedArray.getFloat(R.styleable.CardViewPager_card_scale_rate, 0.38f);
+
         typedArray.recycle();
+    }
+
+    /**
+     * 请在设置adapter之前调用，即在bind方法之前调用
+     *
+     * @param maxOffset 移动偏移量
+     * @param scaleRate 缩放比例
+     */
+    public void setCardTransformer(int maxOffset, float scaleRate) {
+        mTransformer = new CardTransformer(maxOffset, scaleRate);
+        setPageTransformer(false, mTransformer);
     }
 
 
     public <T extends Serializable> void bind(FragmentManager fm, CardHandler<T> handler, List<T> data) {
         List<CardItem> cardItems = getCardItems(handler, data, mIsLoop);
-        setPageTransformer(false, new CardTransformer(mMaxOffset));
+        if (mTransformer == null) {
+            mTransformer = new CardTransformer(mMaxOffset, mScaleRate);
+            setPageTransformer(false, mTransformer);
+        }
         CardPagerAdapter adapter = new CardPagerAdapter(fm, cardItems, mIsLoop);
         setAdapter(adapter);
     }
@@ -80,9 +98,9 @@ public class CardViewPager extends ViewPager {
     private <T extends Serializable> List<CardItem> getCardItems(CardHandler<T> handler, List<T> data, boolean isLoop) {
         List<CardItem> cardItems = new ArrayList<CardItem>();
         int dataSize = data.size();
-        boolean isExpand = isLoop && dataSize < 6;
-        int radio = 6 / dataSize < 2 ? 2 : 6 / dataSize;
-        int size = isExpand ? dataSize * radio : dataSize;
+        int cacheCount = 6;
+        boolean isExpand = isLoop && dataSize < cacheCount;
+        int size = isExpand ? cacheCount : dataSize;
         for (int i = 0; i < size; i++) {
             int position = isExpand ? i % dataSize : i;
             T t = data.get(position);

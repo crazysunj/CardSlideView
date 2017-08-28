@@ -26,11 +26,12 @@ import android.view.View;
 class CardTransformer implements ViewPager.PageTransformer {
 
     private int mMaxTranslateOffsetX;
+    private float mScaleRate;
     private ViewPager mViewPager;
 
-    CardTransformer(int maxOffset) {
-
+    CardTransformer(int maxOffset, float scaleRate) {
         mMaxTranslateOffsetX = maxOffset;
+        mScaleRate = scaleRate;
     }
 
 
@@ -44,7 +45,7 @@ class CardTransformer implements ViewPager.PageTransformer {
         int leftInScreen = page.getLeft() - mViewPager.getScrollX();
         int centerXInViewPager = leftInScreen + page.getMeasuredWidth() / 2;
         int offsetX = centerXInViewPager - mViewPager.getMeasuredWidth() / 2;
-        float offsetRate = (float) offsetX * 0.38f / mViewPager.getMeasuredWidth();
+        float offsetRate = (float) offsetX * mScaleRate / mViewPager.getMeasuredWidth();
         float scaleFactor = 1 - Math.abs(offsetRate);
 
         if (scaleFactor > 0) {
