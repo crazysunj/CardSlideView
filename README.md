@@ -32,6 +32,23 @@ public class MyCardHandler implements CardHandler<String> {
 }
 ```
 
+```
+//正常与卡片效果切换切换，请设置合理的值
+private void switchNormal() {
+    viewPager.setCardTransformer(0, 0);
+    viewPager.setCardPadding(0);
+    viewPager.setCardMargin(0);
+    viewPager.notifyUI(CardViewPager.MODE_NORMAL);
+}
+
+private void switchCard() {
+    viewPager.setCardTransformer(180, 0.38f);
+    viewPager.setCardPadding(60);
+    viewPager.setCardMargin(40);
+    viewPager.notifyUI(CardViewPager.MODE_CARD);
+}
+```
+
 详细介绍戳[这里](http://crazysunj.com/2017/06/25/%E4%B8%80%E8%A1%8C%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0ViewPager%E5%8D%A1%E7%89%87%E6%95%88%E6%9E%9C/)
 
 具体参考demo
