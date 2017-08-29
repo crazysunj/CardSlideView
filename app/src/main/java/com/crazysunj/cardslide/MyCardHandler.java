@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.crazysunj.cardslideview.CardHandler;
+import com.crazysunj.cardslideview.CardViewPager;
 import com.crazysunj.cardslideview.ElasticCardView;
 
 /**
@@ -18,12 +19,13 @@ import com.crazysunj.cardslideview.ElasticCardView;
 public class MyCardHandler implements CardHandler<MyBean> {
 
     @Override
-    public View onBind(final Context context, final MyBean data, final int position) {
+    public View onBind(final Context context, final MyBean data, final int position, @CardViewPager.TransformerMode int mode) {
         View view = View.inflate(context, R.layout.item, null);
         ImageView imageView = (ImageView) view.findViewById(R.id.image);
         ElasticCardView cardView = (ElasticCardView) view.findViewById(R.id.cardview);
-        cardView.setPreventCornerOverlap(false);
-        cardView.setUseCompatPadding(false);
+        final boolean isCard = mode == CardViewPager.MODE_CARD;
+        cardView.setPreventCornerOverlap(isCard);
+        cardView.setUseCompatPadding(isCard);
         final String img = data.getImg();
         Glide.with(context).load(img).into(imageView);
         view.setOnClickListener(new View.OnClickListener() {

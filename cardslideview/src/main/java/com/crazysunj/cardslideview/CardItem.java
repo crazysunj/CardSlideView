@@ -30,10 +30,10 @@ import java.io.Serializable;
  */
 public class CardItem<T extends Serializable> extends BaseCardItem<T> {
 
+    @SuppressWarnings("unchecked")
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         Bundle bundle = getArguments();
         CardHandler<T> handler = (CardHandler<T>) bundle.getSerializable(ARGUMENTS_HANDLER);
         T data = (T) bundle.getSerializable(ARGUMENTS_DATA);
@@ -41,7 +41,7 @@ public class CardItem<T extends Serializable> extends BaseCardItem<T> {
         if (handler == null) {
             throw new RuntimeException("please bind the handler !");
         }
-        return handler.onBind(mContext, data, position);
+        return handler.onBind(mContext, data, position, currentMode);
     }
 
     public void bindData(T data, int position) {
@@ -53,4 +53,5 @@ public class CardItem<T extends Serializable> extends BaseCardItem<T> {
         bundle.putSerializable(ARGUMENTS_DATA, data);
         bundle.putInt(ARGUMENTS_POSITION, position);
     }
+
 }

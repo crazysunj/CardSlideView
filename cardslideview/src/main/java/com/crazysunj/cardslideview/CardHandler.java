@@ -27,5 +27,5 @@ import java.io.Serializable;
  */
 public interface CardHandler<T> extends Serializable {
 
-    View onBind(Context context, T data, int position);
+    View onBind(Context context, T data, int position, @CardViewPager.TransformerMode int mode);
 }

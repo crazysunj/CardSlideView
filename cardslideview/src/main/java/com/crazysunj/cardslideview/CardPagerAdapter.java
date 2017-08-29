@@ -40,6 +40,13 @@ class CardPagerAdapter extends FragmentStatePagerAdapter {
         mIsLoop = isLoop;
     }
 
+    void setCardMode(@CardViewPager.TransformerMode int mode) {
+        if (mCardItems == null || mCardItems.isEmpty()) return;
+        for (CardItem cardItem : mCardItems) {
+            cardItem.currentMode = mode;
+        }
+    }
+
     @Override
     public Fragment getItem(int position) {
         return mCardItems.get(position);
@@ -62,7 +69,11 @@ class CardPagerAdapter extends FragmentStatePagerAdapter {
             int pos = viewPager.getCurrentItem();
             int i = pos % getRealCount();
             int j = position % getRealCount();
-            if (j >= i - 2 && j <= i + 2) {
+            if (viewPager.isNotify) {
+                super.destroyItem(container, j, object);
+                return;
+            }
+            if (viewPager.isCardMode() && j >= i - 2 && j <= i + 2) {
                 return;
             }
             super.destroyItem(container, j, object);

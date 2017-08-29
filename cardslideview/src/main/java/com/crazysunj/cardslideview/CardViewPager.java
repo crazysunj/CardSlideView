@@ -17,14 +17,18 @@ package com.crazysunj.cardslideview;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
 import java.io.Serializable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,10 +39,28 @@ import java.util.List;
  */
 public class CardViewPager extends ViewPager {
 
+    private static final int CACHE_COPUNT = 6;
+
+    public static final int MODE_CARD = 0;
+    public static final int MODE_NORMAL = 1;
+
+    @IntDef({MODE_CARD, MODE_NORMAL})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface TransformerMode {
+    }
+
     private int mMaxOffset;
     private float mScaleRate;
     private boolean mIsLoop = false;
+    private int mCardPaddingLeft;
+    private int mCardPaddingTop;
+    private int mCardPaddingRight;
+    private int mCardPaddingBottom;
     private CardTransformer mTransformer;
+    @TransformerMode
+    private int mCurrentMode = MODE_CARD;
+
+    boolean isNotify;
 
     public CardViewPager(Context context) {
         this(context, null);
@@ -54,7 +76,11 @@ public class CardViewPager extends ViewPager {
         int padding = typedArray
                 .getDimensionPixelOffset(R.styleable.CardViewPager_card_padding,
                         (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60, displayMetrics));
-        setPadding(getPaddingLeft() + padding, getPaddingTop(), getPaddingRight() + padding, getPaddingBottom());
+        mCardPaddingLeft = getPaddingLeft();
+        mCardPaddingTop = getPaddingTop();
+        mCardPaddingRight = getPaddingRight();
+        mCardPaddingBottom = getPaddingBottom();
+        setPadding(mCardPaddingLeft + padding, mCardPaddingTop, mCardPaddingRight + padding, mCardPaddingBottom);
 
         int margin = typedArray
                 .getDimensionPixelOffset(R.styleable.CardViewPager_card_margin,
@@ -78,12 +104,62 @@ public class CardViewPager extends ViewPager {
      * @param maxOffset 移动偏移量
      * @param scaleRate 缩放比例
      */
-    public void setCardTransformer(int maxOffset, float scaleRate) {
-        mTransformer = new CardTransformer(maxOffset, scaleRate);
+    public void setCardTransformer(float maxOffset, float scaleRate) {
+        int cardMaxOffset = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, maxOffset, getResources().getDisplayMetrics());
+        mTransformer = new CardTransformer(cardMaxOffset, scaleRate);
         setPageTransformer(false, mTransformer);
     }
 
+    /**
+     * 设置卡片左右padding
+     *
+     * @param padding 值，自动转dp
+     */
+    public void setCardPadding(float padding) {
+        int cardPadding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding, getResources().getDisplayMetrics());
+        setPadding(mCardPaddingLeft + cardPadding, mCardPaddingTop, mCardPaddingRight + cardPadding, mCardPaddingBottom);
+    }
 
+    /**
+     * 设置卡片margin
+     *
+     * @param margin 值，自动转dp
+     */
+    public void setCardMargin(float margin) {
+        int cardMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, margin, getResources().getDisplayMetrics());
+        setPageMargin(cardMargin);
+    }
+
+    /**
+     * 根据模式刷新通知UI刷新
+     *
+     * @param mode 模式
+     */
+    public void notifyUI(@TransformerMode int mode) {
+        mCurrentMode = mode;
+        isNotify = true;
+        CardPagerAdapter adapter = (CardPagerAdapter) getAdapter();
+        adapter.setCardMode(mCurrentMode);
+        setAdapter(adapter);
+        isNotify = false;
+    }
+
+    boolean isCardMode() {
+        return mCurrentMode == MODE_CARD;
+    }
+
+    public int getCurrentMode() {
+        return mCurrentMode;
+    }
+
+    /**
+     * 绑定数据源
+     *
+     * @param fm      FragmentManager
+     * @param handler 数据处理类
+     * @param data    数据源
+     * @param <T>     泛型，必须实现Serializable
+     */
     public <T extends Serializable> void bind(FragmentManager fm, CardHandler<T> handler, List<T> data) {
         List<CardItem> cardItems = getCardItems(handler, data, mIsLoop);
         if (mTransformer == null) {
@@ -98,9 +174,8 @@ public class CardViewPager extends ViewPager {
     private <T extends Serializable> List<CardItem> getCardItems(CardHandler<T> handler, List<T> data, boolean isLoop) {
         List<CardItem> cardItems = new ArrayList<CardItem>();
         int dataSize = data.size();
-        int cacheCount = 6;
-        boolean isExpand = isLoop && dataSize < cacheCount;
-        int size = isExpand ? cacheCount : dataSize;
+        boolean isExpand = isLoop && dataSize < CACHE_COPUNT;
+        int size = isExpand ? CACHE_COPUNT : dataSize;
         for (int i = 0; i < size; i++) {
             int position = isExpand ? i % dataSize : i;
             T t = data.get(position);
@@ -110,5 +185,13 @@ public class CardViewPager extends ViewPager {
             cardItems.add(item);
         }
         return cardItems;
+    }
+
+    @Override
+    public void setAdapter(PagerAdapter adapter) {
+        if (!(adapter instanceof CardPagerAdapter)) {
+            throw new RuntimeException("please set CardPagerAdapter!");
+        }
+        super.setAdapter(adapter);
     }
 }

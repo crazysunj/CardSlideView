@@ -32,6 +32,9 @@ public class BaseCardItem<T> extends Fragment {
 
     protected Context mContext;
 
+    @CardViewPager.TransformerMode
+    int currentMode;
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
