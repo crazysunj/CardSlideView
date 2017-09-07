@@ -56,7 +56,7 @@ private void switchCard() {
 ## gradle依赖
 
 ```
-compile 'com.crazysunj:cardslideview:1.2.0'
+compile 'com.crazysunj:cardslideview:1.2.1'
 ```
 
 ## 感谢

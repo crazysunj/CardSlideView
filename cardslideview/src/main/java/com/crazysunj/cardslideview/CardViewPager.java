@@ -39,7 +39,7 @@ import java.util.List;
  */
 public class CardViewPager extends ViewPager {
 
-    private static final int CACHE_COPUNT = 6;
+    private static final int CACHE_COUNT = 6;
 
     public static final int MODE_CARD = 0;
     public static final int MODE_NORMAL = 1;
@@ -174,8 +174,9 @@ public class CardViewPager extends ViewPager {
     private <T extends Serializable> List<CardItem> getCardItems(CardHandler<T> handler, List<T> data, boolean isLoop) {
         List<CardItem> cardItems = new ArrayList<CardItem>();
         int dataSize = data.size();
-        boolean isExpand = isLoop && dataSize < CACHE_COPUNT;
-        int size = isExpand ? CACHE_COPUNT : dataSize;
+        boolean isExpand = isLoop && dataSize < CACHE_COUNT;
+        int radio = CACHE_COUNT / dataSize < 2 ? 2 : CACHE_COUNT / dataSize;
+        int size = isExpand ? dataSize * radio : dataSize;
         for (int i = 0; i < size; i++) {
             int position = isExpand ? i % dataSize : i;
             T t = data.get(position);
