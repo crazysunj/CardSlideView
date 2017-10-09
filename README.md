@@ -53,7 +53,15 @@ private void switchCard() {
 
 具体参考demo
 
-**注意事项，实现Serializable的类其内嵌类也必须实现Serializable。**
+**注意事项，实现Serializable的类其内嵌类也必须实现Serializable**
+
+```
+public class A {
+    B b;
+    public static class B{}
+}
+```
+如上，A和B都必须实现Serializable
 
 ## gradle依赖
 
