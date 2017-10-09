@@ -53,7 +53,7 @@ private void switchCard() {
 
 具体参考demo
 
-<font color="red">注意事项，实现Serializable的类其内嵌类也必须实现Serializable。</font>
+<font color="#EE4000">注意事项，实现Serializable的类其内嵌类也必须实现Serializable。</font>
 
 ## gradle依赖
 
