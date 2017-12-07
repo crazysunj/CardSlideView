@@ -28,12 +28,9 @@ public class MyCardHandler implements CardHandler<MyBean> {
         cardView.setUseCompatPadding(isCard);
         final String img = data.getImg();
         Glide.with(context).load(img).into(imageView);
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(context, "data:" + data + "position:" + position, Toast.LENGTH_SHORT).show();
-                TestActivity.start(context, img);
-            }
+        view.setOnClickListener(v -> {
+            Toast.makeText(context, "data:" + data + "position:" + position, Toast.LENGTH_SHORT).show();
+            TestActivity.start(context, img);
         });
         return view;
     }
