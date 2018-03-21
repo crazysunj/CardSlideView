@@ -81,6 +81,8 @@ compile 'com.crazysunj:cardslideview:1.2.1'
 
 QQ邮箱:387953660@qq.com
 
+**如果有什么新奇想法或者有需要优化改进的地方可以发我邮箱或者加我QQ387953660**
+
 ## License
 
 > ```
