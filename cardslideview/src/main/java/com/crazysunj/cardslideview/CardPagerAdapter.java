@@ -22,6 +22,8 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
+import static com.crazysunj.cardslideview.CardViewPager.CACHE_COUNT;
+
 /**
  * description
  * <p>viewPager适配器
@@ -30,6 +32,8 @@ import java.util.List;
 class CardPagerAdapter extends FragmentStatePagerAdapter {
 
     private static final int MAX_VALUE = Integer.MAX_VALUE;
+
+    static final int DIFF_COUNT = CACHE_COUNT / 2;
 
     private List<CardItem> mCardItems;
     private boolean mIsLoop;
@@ -41,7 +45,9 @@ class CardPagerAdapter extends FragmentStatePagerAdapter {
     }
 
     void setCardMode(@CardViewPager.TransformerMode int mode) {
-        if (mCardItems == null || mCardItems.isEmpty()) return;
+        if (mCardItems == null || mCardItems.isEmpty()) {
+            return;
+        }
         for (CardItem cardItem : mCardItems) {
             cardItem.currentMode = mode;
         }
@@ -54,12 +60,17 @@ class CardPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return mIsLoop ? MAX_VALUE : getRealCount();
+        final int realCount = getRealCount();
+        if (realCount == 0) {
+            return 0;
+        }
+        return mIsLoop ? MAX_VALUE : realCount;
     }
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        return super.instantiateItem(container, mIsLoop ? position % getRealCount() : position);
+        final int j = position % getRealCount();
+        return super.instantiateItem(container, mIsLoop ? j : position);
     }
 
     @Override
@@ -69,11 +80,7 @@ class CardPagerAdapter extends FragmentStatePagerAdapter {
             int pos = viewPager.getCurrentItem();
             int i = pos % getRealCount();
             int j = position % getRealCount();
-            if (viewPager.isNotify) {
-                super.destroyItem(container, j, object);
-                return;
-            }
-            if (viewPager.isCardMode() && j >= i - 2 && j <= i + 2) {
+            if (Math.abs(i - j) != DIFF_COUNT && !viewPager.isNotify) {
                 return;
             }
             super.destroyItem(container, j, object);
@@ -85,14 +92,17 @@ class CardPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public void startUpdate(ViewGroup container) {
         super.startUpdate(container);
+        final int realCount = getRealCount();
+        if (realCount == 0) {
+            return;
+        }
         if (mIsLoop) {
             CardViewPager viewPager = (CardViewPager) container;
             int position = viewPager.getCurrentItem();
             if (position == 0) {
-                position = getFristItem();
+                position = getFirstItem(realCount);
             } else if (position == getCount() - 1) {
-                final int realCount = getRealCount();
-                position = getLastItem(position % realCount);
+                position = getLastItem(realCount, position % realCount);
             }
             viewPager.setCurrentItem(position, false);
         }
@@ -102,13 +112,11 @@ class CardPagerAdapter extends FragmentStatePagerAdapter {
         return mCardItems == null ? 0 : mCardItems.size();
     }
 
-    private int getFristItem() {
-        int realCount = getRealCount();
+    private int getFirstItem(int realCount) {
         return MAX_VALUE / realCount / 2 * realCount;
     }
 
-    private int getLastItem(int index) {
-        int realCount = getRealCount();
+    private int getLastItem(int realCount, int index) {
         return MAX_VALUE / realCount / 2 * realCount + index;
     }
 }

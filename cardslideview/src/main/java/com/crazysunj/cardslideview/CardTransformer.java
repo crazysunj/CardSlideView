@@ -37,11 +37,9 @@ class CardTransformer implements ViewPager.PageTransformer {
 
     @Override
     public void transformPage(View page, float position) {
-
         if (mViewPager == null) {
             mViewPager = (ViewPager) page.getParent();
         }
-
         int leftInScreen = page.getLeft() - mViewPager.getScrollX();
         int centerXInViewPager = leftInScreen + page.getMeasuredWidth() / 2;
         int offsetX = centerXInViewPager - mViewPager.getMeasuredWidth() / 2;

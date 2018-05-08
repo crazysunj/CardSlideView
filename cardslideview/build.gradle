@@ -1,12 +1,12 @@
 apply plugin: 'com.android.library'
 apply plugin: 'bintray-release'
 android {
-    compileSdkVersion 26
-    buildToolsVersion "26.0.2"
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 1
         versionName rootProject.ext.publishVersion
     }
@@ -23,9 +23,8 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:support-v4:26.1.0'
-    compile 'com.android.support:cardview-v7:26.1.0'
+    compileOnly 'com.android.support:support-v4:27.1.1'
+    compileOnly 'com.android.support:cardview-v7:27.1.1'
 }
 
 publish {

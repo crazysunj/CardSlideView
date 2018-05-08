@@ -39,10 +39,15 @@ import java.util.List;
  */
 public class CardViewPager extends ViewPager {
 
-    private static final int CACHE_COUNT = 6;
+    static final int CACHE_COUNT = 8;
 
     public static final int MODE_CARD = 0;
     public static final int MODE_NORMAL = 1;
+
+    private static final int MARGIN_MIN = -60;
+    private static final int MARGIN_MAX = 60;
+    private static final int PADDING_MIN = 0;
+    private static final int PADDING_MAX = 100;
 
     @IntDef({MODE_CARD, MODE_NORMAL})
     @Retention(RetentionPolicy.SOURCE)
@@ -80,11 +85,27 @@ public class CardViewPager extends ViewPager {
         mCardPaddingTop = getPaddingTop();
         mCardPaddingRight = getPaddingRight();
         mCardPaddingBottom = getPaddingBottom();
+        final int paddingMin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, PADDING_MIN, displayMetrics);
+        final int paddingMax = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, PADDING_MAX, displayMetrics);
+        if (padding < paddingMin) {
+            padding = paddingMin;
+        }
+        if (padding > paddingMax) {
+            padding = paddingMax;
+        }
         setPadding(mCardPaddingLeft + padding, mCardPaddingTop, mCardPaddingRight + padding, mCardPaddingBottom);
 
         int margin = typedArray
                 .getDimensionPixelOffset(R.styleable.CardViewPager_card_margin,
                         (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40, displayMetrics));
+        final int marginMin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, MARGIN_MIN, displayMetrics);
+        final int marginMax = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, MARGIN_MAX, displayMetrics);
+        if (margin < marginMin) {
+            margin = marginMin;
+        }
+        if (margin > marginMax) {
+            margin = marginMax;
+        }
         setPageMargin(margin);
 
         mMaxOffset = typedArray
@@ -96,6 +117,15 @@ public class CardViewPager extends ViewPager {
         mScaleRate = typedArray.getFloat(R.styleable.CardViewPager_card_scale_rate, 0.38f);
 
         typedArray.recycle();
+        setOffscreenPageLimit(3);
+    }
+
+    @Override
+    public void setOffscreenPageLimit(int limit) {
+        if (limit < 3) {
+            limit = 3;
+        }
+        super.setOffscreenPageLimit(limit);
     }
 
     /**
@@ -116,6 +146,12 @@ public class CardViewPager extends ViewPager {
      * @param padding 值，自动转dp
      */
     public void setCardPadding(float padding) {
+        if (padding < PADDING_MIN) {
+            padding = PADDING_MIN;
+        }
+        if (padding > PADDING_MAX) {
+            padding = PADDING_MAX;
+        }
         int cardPadding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding, getResources().getDisplayMetrics());
         setPadding(mCardPaddingLeft + cardPadding, mCardPaddingTop, mCardPaddingRight + cardPadding, mCardPaddingBottom);
     }
@@ -126,6 +162,12 @@ public class CardViewPager extends ViewPager {
      * @param margin 值，自动转dp
      */
     public void setCardMargin(float margin) {
+        if (margin < MARGIN_MIN) {
+            margin = MARGIN_MIN;
+        }
+        if (margin > MARGIN_MAX) {
+            margin = MARGIN_MAX;
+        }
         int cardMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, margin, getResources().getDisplayMetrics());
         setPageMargin(cardMargin);
     }
@@ -138,7 +180,7 @@ public class CardViewPager extends ViewPager {
     public void notifyUI(@TransformerMode int mode) {
         mCurrentMode = mode;
         isNotify = true;
-        CardPagerAdapter adapter = (CardPagerAdapter) getAdapter();
+        final CardPagerAdapter adapter = (CardPagerAdapter) getAdapter();
         adapter.setCardMode(mCurrentMode);
         setAdapter(adapter);
         isNotify = false;
@@ -161,7 +203,12 @@ public class CardViewPager extends ViewPager {
      * @param <T>     泛型，必须实现Serializable
      */
     public <T extends Serializable> void bind(FragmentManager fm, CardHandler<T> handler, List<T> data) {
-        List<CardItem> cardItems = getCardItems(handler, data, mIsLoop);
+        List<CardItem> cardItems;
+        if (data == null || data.isEmpty()) {
+            cardItems = new ArrayList<>();
+        } else {
+            cardItems = getCardItems(handler, data, mIsLoop);
+        }
         if (mTransformer == null) {
             mTransformer = new CardTransformer(mMaxOffset, mScaleRate);
             setPageTransformer(false, mTransformer);
@@ -172,7 +219,7 @@ public class CardViewPager extends ViewPager {
 
     @NonNull
     private <T extends Serializable> List<CardItem> getCardItems(CardHandler<T> handler, List<T> data, boolean isLoop) {
-        List<CardItem> cardItems = new ArrayList<CardItem>();
+        List<CardItem> cardItems = new ArrayList<>();
         int dataSize = data.size();
         boolean isExpand = isLoop && dataSize < CACHE_COUNT;
         int radio = CACHE_COUNT / dataSize < 2 ? 2 : CACHE_COUNT / dataSize;
@@ -180,7 +227,7 @@ public class CardViewPager extends ViewPager {
         for (int i = 0; i < size; i++) {
             int position = isExpand ? i % dataSize : i;
             T t = data.get(position);
-            CardItem<T> item = new CardItem<T>();
+            CardItem<T> item = new CardItem<>();
             item.bindHandler(handler);
             item.bindData(t, position);
             cardItems.add(item);

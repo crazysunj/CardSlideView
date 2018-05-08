@@ -15,6 +15,7 @@
  */
 package com.crazysunj.cardslideview;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -41,10 +42,11 @@ public class CardItem<T extends Serializable> extends BaseCardItem<T> {
         if (handler == null) {
             throw new RuntimeException("please bind the handler !");
         }
-        return handler.onBind(mContext, data, position, currentMode);
+        final Context context = getContext();
+        return handler.onBind(context, data, position, currentMode);
     }
 
-    public void bindData(T data, int position) {
+    void bindData(T data, int position) {
         Bundle bundle = getArguments();
         if (bundle == null) {
             bundle = new Bundle();
