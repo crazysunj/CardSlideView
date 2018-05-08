@@ -1,4 +1,7 @@
 # CardSlideView
+
+[![](https://img.shields.io/github/release/crazysunj/CardSlideView.svg) ](https://github.com/crazysunj/CardSlideView/releases)
+
 一行代码实现ViewPager卡片效果，支持无限循环，支持正常与卡片之间的切换
 
 想实现轮播效果的同学，可以参考[CrazyDaily](https://github.com/crazysunj/CrazyDaily "https://github.com/crazysunj/CrazyDaily")开源项目首页实现。
@@ -68,7 +71,7 @@ public class A {
 ## gradle依赖
 
 ```
-implementation 'com.crazysunj:cardslideview:1.3.0'
+implementation 'com.crazysunj:cardslideview:1.3.1'
 同时还需要依赖自己的v4包和cardview包
 ```
 
