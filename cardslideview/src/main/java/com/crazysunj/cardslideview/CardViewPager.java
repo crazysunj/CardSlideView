@@ -222,7 +222,7 @@ public class CardViewPager extends ViewPager {
         List<CardItem> cardItems = new ArrayList<>();
         int dataSize = data.size();
         boolean isExpand = isLoop && dataSize < CACHE_COUNT;
-        int radio = CACHE_COUNT / dataSize < 2 ? 2 : CACHE_COUNT / dataSize;
+        int radio = CACHE_COUNT / dataSize < 2 ? 2 : (int) Math.ceil(CACHE_COUNT * 1.0d / dataSize);
         int size = isExpand ? dataSize * radio : dataSize;
         for (int i = 0; i < size; i++) {
             int position = isExpand ? i % dataSize : i;
