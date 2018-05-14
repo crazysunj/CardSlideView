@@ -66,7 +66,7 @@ public class A {
     public static class B{}
 }
 ```
-如上，A和B都必须实现Serializable
+如上，A和B都必须实现Serializable，如果不想序列化，可以在变量前面添加transient关键字，但是有小概率事件发生Activity被系统杀死重启异常问题，大家尽量不要提到成员变量处
 
 ## gradle依赖
 
