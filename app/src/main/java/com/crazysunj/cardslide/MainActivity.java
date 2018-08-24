@@ -1,15 +1,25 @@
 package com.crazysunj.cardslide;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.crazysunj.cardslideview.CardViewPager;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import jp.wasabeef.glide.transformations.BlurTransformation;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
             "https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=1891652328,4280900176&fm=26&gp=0.jpg",
             "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3117198308,3734342397&fm=26&gp=0.jpg",
             "https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=1817262769,1722663763&fm=26&gp=0.jpg",
-            "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=151518877,2853274904&fm=26&gp=0.jpg",
             "https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=2226962572,1331736450&fm=26&gp=0.jpg",
             "https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3215007186,1730866118&fm=26&gp=0.jpg",
             "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=4002052629,2620520156&fm=26&gp=0.jpg",
@@ -31,11 +40,8 @@ public class MainActivity extends AppCompatActivity {
             "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3884460269,2452415434&fm=26&gp=0.jpg",
             "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2459592104,964883207&fm=26&gp=0.jpg",
             "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=4126378158,4237107889&fm=26&gp=0.jpg",
-            "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2370258130,267233387&fm=26&gp=0.jpg",
             "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1955835928,3080371141&fm=26&gp=0.jpg",
             "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2243141774,3186970935&fm=26&gp=0.jpg",
-            "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3106796286,2960659717&fm=26&gp=0.jpg",
-            "https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=696485994,1003678018&fm=26&gp=0.jpg",
             "https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3103859432,2822357524&fm=26&gp=0.jpg",
             "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3430323032,501802113&fm=26&gp=0.jpg",
             "https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=398455838,1385467344&fm=26&gp=0.jpg",
@@ -72,51 +78,63 @@ public class MainActivity extends AppCompatActivity {
             "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2117720982,169686863&fm=26&gp=0.jpg",
             "https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=1673698395,2662990695&fm=26&gp=0.jpg",
             "https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1395642137,81965921&fm=26&gp=0.jpg",
-            "https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3466518060,602853420&fm=26&gp=0.jpg",
             "https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1077412268,1486449152&fm=26&gp=0.jpg",
             "https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2774420294,2604280244&fm=26&gp=0.jpg",
             "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3982795986,3289528383&fm=26&gp=0.jpg",
-            "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3093044513,96496376&fm=26&gp=0.jpg",
             "https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3210647450,3365972530&fm=26&gp=0.jpg",
             "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1152354189,4075004834&fm=26&gp=0.jpg",
             "https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=1241938828,3177192306&fm=26&gp=0.jpg"};
     private CardViewPager viewPager;
 
     private boolean isCard = true;
+    private ImageView mainBG;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         viewPager = (CardViewPager) findViewById(R.id.viewpager);
+        mainBG = (ImageView) findViewById(R.id.main_bg);
         final List<MyBean> list = new ArrayList<MyBean>();
-        list.add(new MyBean("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=1673698395,2662990695&fm=26&gp=0.jpg"));
-        list.add(new MyBean("https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1077412268,1486449152&fm=26&gp=0.jpg"));
-        list.add(new MyBean("https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3982795986,3289528383&fm=26&gp=0.jpg"));
-        list.add(new MyBean("https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3093044513,96496376&fm=26&gp=0.jpg"));
-        list.add(new MyBean("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3210647450,3365972530&fm=26&gp=0.jpg"));
-        list.add(new MyBean("https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1152354189,4075004834&fm=26&gp=0.jpg"));
-        list.add(new MyBean("https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=1241938828,3177192306&fm=26&gp=0.jpg"));
-        list.add(new MyBean("https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=934278520,495630521&fm=26&gp=0.jpg"));
+        for (String s : imageArray) {
+            list.add(new MyBean(s));
+        }
+//        list.add(new MyBean("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=1673698395,2662990695&fm=26&gp=0.jpg"));
+//        list.add(new MyBean("https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1077412268,1486449152&fm=26&gp=0.jpg"));
+//        list.add(new MyBean("https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3982795986,3289528383&fm=26&gp=0.jpg"));
+//        list.add(new MyBean("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3210647450,3365972530&fm=26&gp=0.jpg"));
+//        list.add(new MyBean("https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1152354189,4075004834&fm=26&gp=0.jpg"));
+//        list.add(new MyBean("https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=1241938828,3177192306&fm=26&gp=0.jpg"));
+//        list.add(new MyBean("https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=1241938828,3177192306&fm=26&gp=0.jpg"));
+//        list.add(new MyBean("https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=934278520,495630521&fm=26&gp=0.jpg"));
 //        list.add(new MyBean("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=800274749,3560269987&fm=26&gp=0.jpg"));
         viewPager.bind(getSupportFragmentManager(), new MyCardHandler(), list);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
+//                Log.d("MainActivity", "position:" + position + " positionOffset:" + positionOffset + " positionOffsetPixels:" + positionOffsetPixels);
             }
 
             @Override
             public void onPageSelected(int position) {
-                Log.d("MainActivity", "position:" + position + " pos:" + (position % list.size()));
+                Log.d("MainActivity", "position:" + position);
+                Glide.with(MainActivity.this)
+                        .load(list.get(position).getImg())
+                        .apply(new RequestOptions()
+                                .transform(new BlurTransformation(5)))
+                        .into(new SimpleTarget<Drawable>() {
+                            @Override
+                            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                                mainBG.setImageDrawable(resource);
+                            }
+                        });
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
-
+                Log.d("MainActivity", "state:" + state);
             }
         });
-//        viewPager.bind(getSupportFragmentManager(), new MyCardHandler(), Arrays.asList(imageArray));
     }
 
     public void onClick(View view) {

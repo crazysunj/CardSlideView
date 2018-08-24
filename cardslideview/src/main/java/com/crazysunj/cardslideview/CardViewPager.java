@@ -66,6 +66,7 @@ public class CardViewPager extends ViewPager {
     private int mCurrentMode = MODE_CARD;
 
     boolean isNotify;
+    private int size;
 
     public CardViewPager(Context context) {
         this(context, null);
@@ -178,9 +179,12 @@ public class CardViewPager extends ViewPager {
      * @param mode 模式
      */
     public void notifyUI(@TransformerMode int mode) {
+        final CardPagerAdapter adapter = (CardPagerAdapter) getAdapter();
+        if (adapter == null) {
+            throw new NullPointerException("adapter is null");
+        }
         mCurrentMode = mode;
         isNotify = true;
-        final CardPagerAdapter adapter = (CardPagerAdapter) getAdapter();
         adapter.setCardMode(mCurrentMode);
         setAdapter(adapter);
         isNotify = false;
@@ -220,7 +224,8 @@ public class CardViewPager extends ViewPager {
     @NonNull
     private <T extends Serializable> List<CardItem> getCardItems(CardHandler<T> handler, List<T> data, boolean isLoop) {
         List<CardItem> cardItems = new ArrayList<>();
-        int dataSize = data.size();
+        final int dataSize = data.size();
+        size = dataSize;
         boolean isExpand = isLoop && dataSize < CACHE_COUNT;
         int radio = CACHE_COUNT / dataSize < 2 ? 2 : (int) Math.ceil(CACHE_COUNT * 1.0d / dataSize);
         int size = isExpand ? dataSize * radio : dataSize;
@@ -241,5 +246,60 @@ public class CardViewPager extends ViewPager {
             throw new RuntimeException("please set CardPagerAdapter!");
         }
         super.setAdapter(adapter);
+    }
+
+    @Deprecated
+    @Override
+    public void setOnPageChangeListener(@NonNull final OnPageChangeListener listener) {
+        super.setOnPageChangeListener(new OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                listener.onPageScrolled(position % size, positionOffset, positionOffsetPixels);
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                listener.onPageSelected(position % size);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                listener.onPageScrollStateChanged(state);
+            }
+        });
+    }
+
+    @Override
+    public void addOnPageChangeListener(@NonNull final OnPageChangeListener listener) {
+        super.addOnPageChangeListener(new OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                listener.onPageScrolled(position % size, positionOffset, positionOffsetPixels);
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                listener.onPageSelected(position % size);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                listener.onPageScrollStateChanged(state);
+            }
+        });
+    }
+
+    public int getCurrentIndex() {
+        final int currentItem = super.getCurrentItem();
+        return currentItem % size;
+    }
+
+    @Override
+    public void setCurrentItem(int item) {
+        final CardPagerAdapter adapter = (CardPagerAdapter) getAdapter();
+        if (adapter == null) {
+            throw new NullPointerException("adapter is null");
+        }
+        super.setCurrentItem(adapter.getLastItem(item));
     }
 }

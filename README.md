@@ -54,6 +54,13 @@ private void switchCard() {
 }
 ```
 
+```
+// 获取当前下标
+public int getCurrentIndex();
+
+// addOnPageChangeListener和setOnPageChangeListener回调position对应data，但data不能进行增删操作，如果要进行增删，请重新bind
+```
+
 详细介绍戳[这里](http://crazysunj.com/2017/06/25/%E4%B8%80%E8%A1%8C%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0ViewPager%E5%8D%A1%E7%89%87%E6%95%88%E6%9E%9C/)
 
 具体参考demo
@@ -71,7 +78,7 @@ public class A {
 ## gradle依赖
 
 ```
-implementation 'com.crazysunj:cardslideview:1.3.1'
+implementation 'com.crazysunj:cardslideview:1.4.0'
 同时还需要依赖自己的v4包和cardview包
 ```
 

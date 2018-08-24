@@ -15,6 +15,7 @@
  */
 package com.crazysunj.cardslideview;
 
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -31,9 +32,9 @@ import static com.crazysunj.cardslideview.CardViewPager.CACHE_COUNT;
  */
 class CardPagerAdapter extends FragmentStatePagerAdapter {
 
-    private static final int MAX_VALUE = Integer.MAX_VALUE;
+    private final int MAX_VALUE;
 
-    static final int DIFF_COUNT = CACHE_COUNT / 2;
+    private static final int DIFF_COUNT = CACHE_COUNT / 2;
 
     private List<CardItem> mCardItems;
     private boolean mIsLoop;
@@ -41,6 +42,7 @@ class CardPagerAdapter extends FragmentStatePagerAdapter {
     CardPagerAdapter(FragmentManager fm, List<CardItem> cardItems, boolean isLoop) {
         super(fm);
         mCardItems = cardItems;
+        MAX_VALUE = getRealCount() * 3;
         mIsLoop = isLoop;
     }
 
@@ -67,6 +69,7 @@ class CardPagerAdapter extends FragmentStatePagerAdapter {
         return mIsLoop ? MAX_VALUE : realCount;
     }
 
+    @NonNull
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         final int j = position % getRealCount();
@@ -100,9 +103,9 @@ class CardPagerAdapter extends FragmentStatePagerAdapter {
             CardViewPager viewPager = (CardViewPager) container;
             int position = viewPager.getCurrentItem();
             if (position == 0) {
-                position = getFirstItem(realCount);
+                position = getFirstItem();
             } else if (position == getCount() - 1) {
-                position = getLastItem(realCount, position % realCount);
+                position = getLastItem(position % realCount);
             }
             viewPager.setCurrentItem(position, false);
         }
@@ -112,11 +115,13 @@ class CardPagerAdapter extends FragmentStatePagerAdapter {
         return mCardItems == null ? 0 : mCardItems.size();
     }
 
-    private int getFirstItem(int realCount) {
+    private int getFirstItem() {
+        final int realCount = getRealCount();
         return MAX_VALUE / realCount / 2 * realCount;
     }
 
-    private int getLastItem(int realCount, int index) {
+    int getLastItem(int index) {
+        final int realCount = getRealCount();
         return MAX_VALUE / realCount / 2 * realCount + index;
     }
 }
