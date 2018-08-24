@@ -33,11 +33,15 @@ dependencies {
     //    compile 'com.crazysunj:cardslideview:1.2.1'
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-    implementation 'com.github.bumptech.glide:glide:4.0.0'
-    implementation 'jp.wasabeef:glide-transformations:3.3.0'
+    implementation('com.github.bumptech.glide:glide:4.7.1') {
+        exclude group: "com.android.support"
+    }
+    implementation('jp.wasabeef:glide-transformations:3.3.0') {
+        exclude group: 'com.github.bumptech.glide', module: 'glide'
+    }
     testImplementation 'junit:junit:4.12'
     testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
     implementation 'com.android.support:cardview-v7:27.1.1'
