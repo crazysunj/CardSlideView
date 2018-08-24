@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.crazysunj.cardslideview.CardHandler;
 import com.crazysunj.cardslideview.CardViewPager;
 import com.crazysunj.cardslideview.ElasticCardView;
@@ -27,7 +28,7 @@ public class MyCardHandler implements CardHandler<MyBean> {
         cardView.setPreventCornerOverlap(isCard);
         cardView.setUseCompatPadding(isCard);
         final String img = data.getImg();
-        Glide.with(context).load(img).into(imageView);
+        Glide.with(context).load(img).apply(new RequestOptions().dontAnimate()).into(imageView);
         view.setOnClickListener(v -> {
             Toast.makeText(context, "data:" + data + "position:" + position, Toast.LENGTH_SHORT).show();
             TestActivity.start(context, img);
