@@ -58,6 +58,8 @@ private void switchCard() {
 // 获取当前下标
 public int getCurrentIndex();
 
+// 原setCurrentItem请用setCurrentIndex替代
+
 // addOnPageChangeListener和setOnPageChangeListener回调position对应data，但data不能进行增删操作，如果要进行增删，请重新bind
 ```
 
@@ -78,7 +80,7 @@ public class A {
 ## gradle依赖
 
 ```
-implementation 'com.crazysunj:cardslideview:1.4.1'
+implementation 'com.crazysunj:cardslideview:1.4.2'
 同时还需要依赖自己的v4包和cardview包
 ```
 

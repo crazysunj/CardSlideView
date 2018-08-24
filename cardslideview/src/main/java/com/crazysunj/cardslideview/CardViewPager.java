@@ -294,16 +294,60 @@ public class CardViewPager extends ViewPager {
         return currentItem % size;
     }
 
-    @Override
-    public void setCurrentItem(int item) {
+    public void setCurrentIndex(int index) {
         if (!mIsLoop) {
-            super.setCurrentItem(item);
+            super.setCurrentItem(index);
             return;
         }
         final CardPagerAdapter adapter = (CardPagerAdapter) getAdapter();
         if (adapter == null) {
             throw new NullPointerException("adapter is null");
         }
-        super.setCurrentItem(adapter.getLastItem(item));
+        super.setCurrentItem(adapter.getLastItem(index));
+    }
+
+    public void setCurrentIndex(int index, boolean smoothScroll) {
+        if (!mIsLoop) {
+            // smoothScroll为false的时候滑动间隔过多条目会显示异常，暂时先特殊处理，下同
+            if (smoothScroll) {
+                super.setCurrentItem(index, true);
+            } else {
+                super.setCurrentItem(getPreIndex(index), false);
+                super.setCurrentItem(index);
+            }
+            return;
+        }
+        final CardPagerAdapter adapter = (CardPagerAdapter) getAdapter();
+        if (adapter == null) {
+            throw new NullPointerException("adapter is null");
+        }
+        if (smoothScroll) {
+            super.setCurrentItem(adapter.getLastItem(index), true);
+        } else {
+            super.setCurrentItem(adapter.getLastItem(getPreIndex(index)), false);
+            super.setCurrentItem(adapter.getLastItem(index));
+        }
+    }
+
+    private int getPreIndex(int index) {
+        return index - 1 < 0 ? size - 1 : index - 1;
+    }
+
+    /**
+     * 请使用{@link #setCurrentIndex(int)}替代
+     */
+    @Deprecated
+    @Override
+    public void setCurrentItem(int item) {
+        super.setCurrentItem(item);
+    }
+
+    /**
+     * 请使用{@link #setCurrentIndex(int, boolean)}替代
+     */
+    @Deprecated
+    @Override
+    public void setCurrentItem(int item, boolean smoothScroll) {
+        super.setCurrentItem(item, smoothScroll);
     }
 }
