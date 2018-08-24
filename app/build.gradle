@@ -29,8 +29,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     implementation project(':cardslideview')
-    //    compile 'com.github.bumptech.glide:glide:3.8.0'
-    //    compile 'com.crazysunj:cardslideview:1.2.1'
+//        implementation 'com.crazysunj:cardslideview:1.4.1'
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation('com.github.bumptech.glide:glide:4.7.1') {

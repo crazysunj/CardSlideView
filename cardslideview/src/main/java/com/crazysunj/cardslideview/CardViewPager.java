@@ -296,6 +296,10 @@ public class CardViewPager extends ViewPager {
 
     @Override
     public void setCurrentItem(int item) {
+        if (!mIsLoop) {
+            super.setCurrentItem(item);
+            return;
+        }
         final CardPagerAdapter adapter = (CardPagerAdapter) getAdapter();
         if (adapter == null) {
             throw new NullPointerException("adapter is null");

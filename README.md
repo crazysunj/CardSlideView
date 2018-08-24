@@ -78,7 +78,7 @@ public class A {
 ## gradle依赖
 
 ```
-implementation 'com.crazysunj:cardslideview:1.4.0'
+implementation 'com.crazysunj:cardslideview:1.4.1'
 同时还需要依赖自己的v4包和cardview包
 ```
 
