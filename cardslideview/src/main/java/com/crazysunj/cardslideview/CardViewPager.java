@@ -330,7 +330,7 @@ public class CardViewPager extends ViewPager {
     }
 
     private int getPreIndex(int index) {
-        return index - 1 < 0 ? size - 1 : index - 1;
+        return index - 1 < 0 ? index + 1 : index - 1;
     }
 
     /**
