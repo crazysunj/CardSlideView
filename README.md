@@ -84,6 +84,9 @@ implementation 'com.crazysunj:cardslideview:1.4.2'
 同时还需要依赖自己的v4包和cardview包
 ```
 
+## 温馨提示
+大家可以利用RecyclerView实现相似效果，具体案例可参考开源项目[CrazyDaily](https://github.com/crazysunj/CrazyDaily)
+
 ## 感谢
 
 [android-page-transition](https://github.com/xmuSistone/android-page-transition)
