@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Sun Jian
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,14 +17,15 @@ package com.crazysunj.cardslideview;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import java.io.Serializable;
 import java.lang.annotation.Retention;
@@ -33,8 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * description
- * <p>封装卡片ViewPager
+ * 封装卡片ViewPager
  * Created by sunjian on 2017/6/22.
  */
 public class CardViewPager extends ViewPager {

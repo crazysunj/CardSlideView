@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Sun Jian
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,16 +17,16 @@ package com.crazysunj.cardslideview;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.Nullable;
+
 import java.io.Serializable;
 
 /**
- * description
- * <p>card滑动条目
+ * card滑动条目
  * Created by sunjian on 2017/6/22.
  */
 public class CardItem<T extends Serializable> extends BaseCardItem<T> {

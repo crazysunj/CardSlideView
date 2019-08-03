@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Sun Jian
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,19 +15,19 @@
  */
 package com.crazysunj.cardslideview;
 
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import java.util.List;
 
 import static com.crazysunj.cardslideview.CardViewPager.CACHE_COUNT;
 
 /**
- * description
- * <p>viewPager适配器
+ * viewPager适配器
  * Created by sunjian on 2017/6/22.
  */
 class CardPagerAdapter extends FragmentStatePagerAdapter {

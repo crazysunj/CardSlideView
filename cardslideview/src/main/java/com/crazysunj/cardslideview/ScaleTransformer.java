@@ -15,17 +15,25 @@
  */
 package com.crazysunj.cardslideview;
 
-import android.content.Context;
 import android.view.View;
 
-import java.io.Serializable;
+import androidx.annotation.NonNull;
 
 /**
- * 构建view并处理UI逻辑
- * Created by sunjian on 2017/6/22.
+ * 默认缩放效果，可自定义
+ *
+ * @author sunjian
+ * @date 2019-07-16 09:49
  */
-@FunctionalInterface
-public interface CardHandler<T> extends Serializable {
+class ScaleTransformer implements PageTransformer {
 
-    View onBind(Context context, T data, int position, @CardViewPager.TransformerMode int mode);
+    ScaleTransformer() {
+    }
+
+    @Override
+    public void transformPage(@NonNull View view, float offsetPercent, int orientation) {
+        float scale = 1 - 0.2f * Math.abs(offsetPercent);
+        view.setScaleX(scale);
+        view.setScaleY(scale);
+    }
 }

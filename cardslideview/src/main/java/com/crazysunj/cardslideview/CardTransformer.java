@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Sun Jian
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +15,12 @@
  */
 package com.crazysunj.cardslideview;
 
-import android.support.v4.view.ViewPager;
 import android.view.View;
 
+import androidx.viewpager.widget.ViewPager;
+
 /**
- * description
- * <p>调整ViewPager滑动视差
+ * 调整ViewPager滑动视差
  * Created by sunjian on 2017/6/22.
  */
 class CardTransformer implements ViewPager.PageTransformer {

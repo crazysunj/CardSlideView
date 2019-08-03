@@ -12,8 +12,7 @@
         android:layout_gravity="center"
         app:cardCornerRadius="5dp"
         app:cardElevation="8dp"
-        app:cardMaxElevation="8dp"
-        app:ratio="1.4">
+        app:cardMaxElevation="8dp">
 
         <ImageView
             android:id="@+id/image"

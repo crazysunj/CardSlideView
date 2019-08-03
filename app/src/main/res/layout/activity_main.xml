@@ -12,11 +12,13 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop" />
 
-    <com.crazysunj.cardslideview.CardViewPager
-        android:id="@+id/viewpager"
+    <com.crazysunj.cardslideview.CardSlideView
+        app:card_loop="true"
+        app:card_item_rate="1.6"
+        android:id="@+id/slide_view"
+        app:card_side_offset_percent="1.8"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:card_loop="true" />
+        android:layout_height="match_parent" />
 
     <Button
         android:layout_width="match_parent"

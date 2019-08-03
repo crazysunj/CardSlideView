@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Sun Jian
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +16,11 @@
 package com.crazysunj.cardslideview;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+
+import androidx.fragment.app.Fragment;
 
 /**
- * description
- * <p>card滑动条目基类
+ * card滑动条目基类
  * Created by sunjian on 2017/6/22.
  */
 public class BaseCardItem<T> extends Fragment {

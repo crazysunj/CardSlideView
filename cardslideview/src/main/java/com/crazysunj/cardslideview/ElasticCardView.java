@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Sun Jian
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,12 +17,12 @@ package com.crazysunj.cardslideview;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 
+import androidx.cardview.widget.CardView;
+
 /**
- * description
- * <p>可调整宽高比的CardView，默认开启阴影效果
+ * 可调整宽高比的CardView，默认开启阴影效果
  * Created by sunjian on 2017/6/22.
  */
 public class ElasticCardView extends CardView {
@@ -49,7 +49,6 @@ public class ElasticCardView extends CardView {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-
         if (RATIO > 0) {
             int newHeightMeasureSpec = MeasureSpec.makeMeasureSpec((int) (MeasureSpec.getSize(widthMeasureSpec) * RATIO), MeasureSpec.EXACTLY);
             super.onMeasure(widthMeasureSpec, newHeightMeasureSpec);

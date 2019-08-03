@@ -1,20 +1,29 @@
 package com.crazysunj.cardslide;
 
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearSnapHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.crazysunj.cardslideview.CardViewPager;
+import com.crazysunj.cardslideview.CardHolder;
+import com.crazysunj.cardslideview.CardSlideView;
+import com.crazysunj.cardslideview.CardViewHolder;
+import com.crazysunj.cardslideview.OnPageChangeListener;
+import com.crazysunj.cardslideview.PageTransformer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,42 +93,30 @@ public class MainActivity extends AppCompatActivity {
             "https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3210647450,3365972530&fm=26&gp=0.jpg",
             "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1152354189,4075004834&fm=26&gp=0.jpg",
             "https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=1241938828,3177192306&fm=26&gp=0.jpg"};
-    private CardViewPager viewPager;
+//    private CardViewPager viewPager;
 
     private boolean isCard = true;
     private ImageView mainBG;
+    private CardSlideView<MyBean> slideView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        viewPager = (CardViewPager) findViewById(R.id.viewpager);
+//        viewPager = (CardViewPager) findViewById(R.id.viewpager);
+        slideView = findViewById(R.id.slide_view);
         mainBG = (ImageView) findViewById(R.id.main_bg);
         final List<MyBean> list = new ArrayList<MyBean>();
         for (String s : imageArray) {
             list.add(new MyBean(s));
         }
-//        list.add(new MyBean("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=1673698395,2662990695&fm=26&gp=0.jpg"));
-//        list.add(new MyBean("https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1077412268,1486449152&fm=26&gp=0.jpg"));
-//        list.add(new MyBean("https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3982795986,3289528383&fm=26&gp=0.jpg"));
-//        list.add(new MyBean("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3210647450,3365972530&fm=26&gp=0.jpg"));
-//        list.add(new MyBean("https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1152354189,4075004834&fm=26&gp=0.jpg"));
-//        list.add(new MyBean("https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=1241938828,3177192306&fm=26&gp=0.jpg"));
-//        list.add(new MyBean("https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=1241938828,3177192306&fm=26&gp=0.jpg"));
-//        list.add(new MyBean("https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=934278520,495630521&fm=26&gp=0.jpg"));
-//        list.add(new MyBean("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=800274749,3560269987&fm=26&gp=0.jpg"));
-        viewPager.bind(getSupportFragmentManager(), new MyCardHandler(), list);
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//                Log.d("MainActivity", "position:" + position + " positionOffset:" + positionOffset + " positionOffsetPixels:" + positionOffsetPixels);
-            }
-
+        slideView.setOnPageChangeListener(new OnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                Log.d("MainActivity", "position:" + position);
+                MyBean data = list.get(position);
+                Log.e("MainActivity", "onPageSelected---data:" + data + "position:" + position);
                 Glide.with(MainActivity.this)
-                        .load(list.get(position).getImg())
+                        .load(data.getImg())
                         .apply(new RequestOptions()
                                 .transform(new BlurTransformation(5)))
                         .into(new SimpleTarget<Drawable>() {
@@ -129,35 +126,83 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
             }
+        });
+        slideView.bind(list, new CardHolder<MyBean>() {
+            @Override
+            public View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
+                return inflater.inflate(R.layout.item, container, false);
+            }
 
             @Override
-            public void onPageScrollStateChanged(int state) {
-                Log.d("MainActivity", "state:" + state);
+            public void onBindView(@NonNull CardViewHolder holder, MyBean data, int position) {
+                Log.e("MainActivity", "onBindView---data:" + data + "position:" + position);
+                ImageView imageView = holder.getView(R.id.image);
+                final String img = data.getImg();
+                Glide.with(imageView.getContext()).load(img).apply(new RequestOptions().dontAnimate()).into(imageView);
+                if (position % 3 == 0) {
+                    holder.itemView.setBackgroundColor(Color.RED);
+                } else if (position % 3 == 1) {
+                    holder.itemView.setBackgroundColor(Color.BLUE);
+                } else {
+                    holder.itemView.setBackgroundColor(Color.GREEN);
+                }
+                holder.itemView.setOnClickListener(v -> {
+                    Log.e("MainActivity", "setOnClickListener---data:" + data + "position:" + position);
+                    TestActivity.start(v.getContext(), img);
+                });
             }
         });
+//        list.add(new MyBean("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=1673698395,2662990695&fm=26&gp=0.jpg"));
+//        list.add(new MyBean("https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1077412268,1486449152&fm=26&gp=0.jpg"));
+//        list.add(new MyBean("https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3982795986,3289528383&fm=26&gp=0.jpg"));
+//        list.add(new MyBean("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3210647450,3365972530&fm=26&gp=0.jpg"));
+//        list.add(new MyBean("https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1152354189,4075004834&fm=26&gp=0.jpg"));
+//        list.add(new MyBean("https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=1241938828,3177192306&fm=26&gp=0.jpg"));
+//        list.add(new MyBean("https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=1241938828,3177192306&fm=26&gp=0.jpg"));
+//        list.add(new MyBean("https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=934278520,495630521&fm=26&gp=0.jpg"));
+//        list.add(new MyBean("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=800274749,3560269987&fm=26&gp=0.jpg"));
+//        viewPager.bind(getSupportFragmentManager(), new MyCardHandler(), list);
+//        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+//            @Override
+//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+////                Log.d("MainActivity", "position:" + position + " positionOffset:" + positionOffset + " positionOffsetPixels:" + positionOffsetPixels);
+//            }
+//
+//            @Override
+//            public void onPageSelected(int position) {
+//                Log.d("MainActivity", "position:" + position);
+//                Glide.with(MainActivity.this)
+//                        .load(list.get(position).getImg())
+//                        .apply(new RequestOptions()
+//                                .transform(new BlurTransformation(5)))
+//                        .into(new SimpleTarget<Drawable>() {
+//                            @Override
+//                            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+//                                mainBG.setImageDrawable(resource);
+//                            }
+//                        });
+//            }
+//
+//            @Override
+//            public void onPageScrollStateChanged(int state) {
+//                Log.d("MainActivity", "state:" + state);
+//            }
+//        });
     }
 
-    public void onClick(View view) {
-        if (isCard) {
-            isCard = false;
-            switchNormal();
-        } else {
-            isCard = true;
-            switchCard();
+    private class MyTrans implements PageTransformer {
+
+        @Override
+        public void transformPage(@NonNull View view, float offsetPercent, int orientation) {
+            view.setScaleX(1.0f);
+            view.setScaleY(1.0f);
         }
     }
 
-    private void switchNormal() {
-        viewPager.setCardTransformer(0, 0);
-        viewPager.setCardPadding(0);
-        viewPager.setCardMargin(0);
-        viewPager.notifyUI(CardViewPager.MODE_NORMAL);
-    }
-
-    private void switchCard() {
-        viewPager.setCardTransformer(180, 0.38f);
-        viewPager.setCardPadding(60);
-        viewPager.setCardMargin(40);
-        viewPager.notifyUI(CardViewPager.MODE_CARD);
+    public void onClick(View view) {
+        slideView.setOrientation(RecyclerView.VERTICAL);
+//        slideView.setItemTransformer(new MyTrans());
+        slideView.setLooper(true);
+        slideView.setSnapHelper(new LinearSnapHelper());
     }
 }
