@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <attr name="ratio" format="float" />
-    <attr name="card_padding" format="dimension" />
-    <attr name="card_margin" format="dimension" />
-    <attr name="card_max_offset" format="dimension" />
-    <attr name="card_scale_rate" format="float" />
 
     <attr name="card_loop" format="boolean" />
     <attr name="card_side_offset_percent" format="float" />
@@ -12,14 +8,6 @@
 
     <declare-styleable name="ElasticCardView">
         <attr name="ratio" />
-    </declare-styleable>
-
-    <declare-styleable name="CardViewPager">
-        <attr name="card_padding" />
-        <attr name="card_margin" />
-        <attr name="card_scale_rate" />
-        <attr name="card_max_offset" />
-        <attr name="card_loop" />
     </declare-styleable>
 
     <declare-styleable name="CardSlideView">

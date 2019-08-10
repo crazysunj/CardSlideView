@@ -13,10 +13,9 @@
         android:scaleType="centerCrop" />
 
     <com.crazysunj.cardslideview.CardSlideView
-        app:card_loop="true"
-        app:card_item_rate="1.6"
+        app:card_item_rate="1.3"
         android:id="@+id/slide_view"
-        app:card_side_offset_percent="1.8"
+        app:card_side_offset_percent="0.25"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

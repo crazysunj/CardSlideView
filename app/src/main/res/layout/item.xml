@@ -4,15 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-    <com.crazysunj.cardslideview.ElasticCardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/cardview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         app:cardCornerRadius="5dp"
         app:cardElevation="8dp"
-        app:cardMaxElevation="8dp">
+        app:cardMaxElevation="8dp"
+        app:cardPreventCornerOverlap="true"
+        app:cardUseCompatPadding="true">
 
         <ImageView
             android:id="@+id/image"
@@ -20,7 +21,5 @@
             android:layout_height="match_parent"
             android:scaleType="centerCrop" />
 
-    </com.crazysunj.cardslideview.ElasticCardView>
-
-
+    </androidx.cardview.widget.CardView>
 </FrameLayout>

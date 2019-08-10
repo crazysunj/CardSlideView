@@ -27,11 +27,14 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 /**
@@ -39,6 +42,15 @@ import java.util.List;
  * @date 2019-07-19 14:21
  */
 public class CardSlideView<T> extends FrameLayout {
+
+    public static final int HORIZONTAL = LinearLayout.HORIZONTAL;
+    public static final int VERTICAL = LinearLayout.VERTICAL;
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({HORIZONTAL, VERTICAL})
+    public @interface Orientation {
+    }
+
     private static final float MAX_OFFSET_PERCENT = 1.f;
     private static final float MIN_OFFSET_PERCENT = 0f;
 
@@ -82,13 +94,31 @@ public class CardSlideView<T> extends FrameLayout {
         initView(context, attrs);
     }
 
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if (getOrientation() == HORIZONTAL) {
+            final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+            if (widthMode != MeasureSpec.EXACTLY) {
+                throw new RuntimeException("水平方向，宽度必须固定，可以设置MATCH_PARENT");
+            }
+        }
+
+        if (getOrientation() == VERTICAL) {
+            final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+            if (heightMode != MeasureSpec.EXACTLY) {
+                throw new RuntimeException("垂直方向，高度必须固定，可以设置MATCH_PARENT");
+            }
+        }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
     private void initView(Context context, @Nullable AttributeSet attrs) {
         int orientation = LinearLayout.HORIZONTAL;
         if (attrs != null) {
             TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.CardSlideView);
-            mSideOffsetPercent = ta.getFloat(R.styleable.CardSlideView_card_side_offset_percent, 0.4f);
+            mSideOffsetPercent = ta.getFloat(R.styleable.CardSlideView_card_side_offset_percent, 0.25f);
             mIsLoop = ta.getBoolean(R.styleable.CardSlideView_card_loop, mIsLoop);
-            mItemRate = ta.getFloat(R.styleable.CardSlideView_card_item_rate, 1.f);
+            mItemRate = ta.getFloat(R.styleable.CardSlideView_card_item_rate, 1.3f);
             orientation = ta.getInt(R.styleable.CardSlideView_android_orientation, orientation);
             ta.recycle();
         }
@@ -107,6 +137,10 @@ public class CardSlideView<T> extends FrameLayout {
         mLayoutManager.setItemTransformer(new ScaleTransformer());
         mLayoutManager.attachToRecyclerView(mCardListView);
 
+    }
+
+    public void setSnapHelper(SnapHelper snapHelper) {
+        mLayoutManager.setSnapHelper(snapHelper);
     }
 
     public void bind(List<T> data, @NonNull CardHolder<T> holder) {
@@ -128,7 +162,7 @@ public class CardSlideView<T> extends FrameLayout {
         mVerticalAdapter.notifyChanged(data);
     }
 
-    public void setOrientation(@RecyclerView.Orientation int orientation) {
+    public void setOrientation(@Orientation int orientation) {
         mLayoutManager.setOrientation(orientation);
     }
 
@@ -146,10 +180,6 @@ public class CardSlideView<T> extends FrameLayout {
             return;
         }
         mCardListView.scrollToPosition(item);
-    }
-
-    public void setSnapHelper(@NonNull SnapHelper snapHelper) {
-        mLayoutManager.setSnapHelper(snapHelper);
     }
 
     public int getCurrentItem() {
@@ -193,7 +223,8 @@ public class CardSlideView<T> extends FrameLayout {
         @NonNull
         @Override
         public CardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            final View view = mHolder.onCreateView(LayoutInflater.from(parent.getContext()), parent);
+            final Context context = parent.getContext();
+            final View view = mHolder.onCreateView(LayoutInflater.from(context), parent);
             RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) view.getLayoutParams();
             if (mOrientation == LinearLayout.HORIZONTAL) {
                 params.width = Math.round(parent.getMeasuredWidth() / (mSideOffsetPercent * 2 + 1));
@@ -202,7 +233,6 @@ public class CardSlideView<T> extends FrameLayout {
                 params.height = Math.round(parent.getMeasuredHeight() / (mSideOffsetPercent * 2 + 1));
                 params.width = Math.round(params.height / mItemRate);
             }
-            view.setLayoutParams(params);
             return new CardViewHolder(view);
         }
 
@@ -217,7 +247,7 @@ public class CardSlideView<T> extends FrameLayout {
         }
     }
 
-    private static class InnerRecyclerView extends RecyclerView {
+    private class InnerRecyclerView extends RecyclerView {
 
         /**
          * 水平可以顺畅滑动的范围-45~45和135~225

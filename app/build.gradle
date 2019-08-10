@@ -24,8 +24,8 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation project(':cardslideview')
-//        implementation 'com.crazysunj:cardslideview:1.4.1'
+//    implementation project(':cardslideview')
+        implementation 'com.crazysunj:cardslideview:2.0.0'
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation('com.github.bumptech.glide:glide:4.7.1') {

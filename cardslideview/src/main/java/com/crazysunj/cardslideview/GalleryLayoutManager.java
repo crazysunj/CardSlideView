@@ -19,6 +19,7 @@ import android.content.Context;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +28,6 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.OrientationHelper;
-import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
@@ -37,7 +37,7 @@ import androidx.recyclerview.widget.SnapHelper;
  * @author sunjian
  * @date 2019-07-16 09:42
  */
-public class GalleryLayoutManager extends RecyclerView.LayoutManager implements RecyclerView.SmoothScroller.ScrollVectorProvider {
+class GalleryLayoutManager extends RecyclerView.LayoutManager implements RecyclerView.SmoothScroller.ScrollVectorProvider {
     private static final String TAG = "GalleryLayoutManager";
 
     private final static int LAYOUT_START = -1;
@@ -54,7 +54,7 @@ public class GalleryLayoutManager extends RecyclerView.LayoutManager implements 
      */
     private State mState;
 
-    private SnapHelper mSnapHelper = new PagerSnapHelper();
+    private SnapHelper mSnapHelper = new CardPagerSnapHelper();
 
     private InnerScrollListener mInnerScrollListener = new InnerScrollListener();
 
@@ -71,17 +71,26 @@ public class GalleryLayoutManager extends RecyclerView.LayoutManager implements 
 
     private boolean isLooper;
 
-    public GalleryLayoutManager() {
+    GalleryLayoutManager() {
         this(LinearLayout.HORIZONTAL, false);
     }
 
-    public GalleryLayoutManager(int orientation) {
+    GalleryLayoutManager(int orientation) {
         this(orientation, false);
     }
 
-    public GalleryLayoutManager(int orientation, boolean isLooper) {
+    GalleryLayoutManager(int orientation, boolean isLooper) {
         mOrientation = orientation;
         this.isLooper = isLooper;
+    }
+
+    void setSnapHelper(SnapHelper snapHelper) {
+        if (mRecyclerView == null) {
+            return;
+        }
+        mSnapHelper = snapHelper;
+        mRecyclerView.setOnFlingListener(null);
+        mSnapHelper.attachToRecyclerView(mRecyclerView);
     }
 
     /**
@@ -89,7 +98,7 @@ public class GalleryLayoutManager extends RecyclerView.LayoutManager implements 
      *
      * @param recyclerView RecyclerView
      */
-    public void attachToRecyclerView(@NonNull RecyclerView recyclerView) {
+    void attachToRecyclerView(@NonNull RecyclerView recyclerView) {
         mRecyclerView = recyclerView;
         recyclerView.setLayoutManager(this);
         mSnapHelper.attachToRecyclerView(recyclerView);
@@ -99,11 +108,11 @@ public class GalleryLayoutManager extends RecyclerView.LayoutManager implements 
     @Override
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
         if (mOrientation == LinearLayout.VERTICAL) {
-            return new GalleryLayoutManager.LayoutParams(
+            return new LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
         } else {
-            return new GalleryLayoutManager.LayoutParams(
+            return new LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.MATCH_PARENT);
         }
@@ -531,13 +540,13 @@ public class GalleryLayoutManager extends RecyclerView.LayoutManager implements 
         View child;
         if (dx > 0) {
             child = getChildAt(getChildCount() - 1);
-            if (child != null && getPosition(child) == getItemCount() - 1) {
+            if (child != null && getPosition(child) == getItemCount() - 1 && !isLooper) {
                 // 计算全部加载完后item的偏移量，右边会留出空隙
                 offset = -Math.max(0, Math.min(dx, (child.getRight() - child.getLeft()) / 2 + child.getLeft() - centerToStart));
             }
         } else {
             child = getChildAt(0);
-            if (mFirstVisiblePosition == 0 && child != null) {
+            if (mFirstVisiblePosition == 0 && child != null && !isLooper) {
                 // 计算首次加载item的偏移量，左边会留出空隙
                 offset = -Math.min(0, Math.max(dx, ((child.getRight() - child.getLeft()) / 2 + child.getLeft()) - centerToStart));
             }
@@ -617,6 +626,7 @@ public class GalleryLayoutManager extends RecyclerView.LayoutManager implements 
                 if (isLooper) {
                     position = getItemCount() - 1;
                 } else {
+                    Log.e(TAG, "break");
                     break;
                 }
             }
@@ -665,7 +675,7 @@ public class GalleryLayoutManager extends RecyclerView.LayoutManager implements 
             }
             scrapRect = getState().itemsRect.get(position);
             scrap = recycler.getViewForPosition(position);
-            addView(scrap);
+            addView(scrap, getChildCount());
             if (scrapRect == null) {
                 scrapRect = new Rect();
                 getState().itemsRect.put(position, scrapRect);
@@ -695,6 +705,11 @@ public class GalleryLayoutManager extends RecyclerView.LayoutManager implements 
             if (child != null && getDecoratedLeft(child) > rightEdge) {
                 // 离开屏幕右侧
                 removeAndRecycleView(child, recycler);
+                if (isLooper) {
+                    if (mLastVisiblePosition == 0) {
+                        mLastVisiblePosition = getItemCount();
+                    }
+                }
                 mLastVisiblePosition--;
             }
         }
@@ -707,6 +722,11 @@ public class GalleryLayoutManager extends RecyclerView.LayoutManager implements 
             if (child != null && getDecoratedRight(child) < leftEdge) {
                 // 离开屏幕左侧，移除view，回收资源
                 removeAndRecycleView(child, recycler);
+                if (isLooper) {
+                    if (mFirstVisiblePosition >= getItemCount() - 1) {
+                        mFirstVisiblePosition = -1;
+                    }
+                }
                 mFirstVisiblePosition++;
                 // 被移除了，调整index
                 i--;
@@ -901,7 +921,7 @@ public class GalleryLayoutManager extends RecyclerView.LayoutManager implements 
         startSmoothScroll(linearSmoothScroller);
     }
 
-    void setOrientation(@RecyclerView.Orientation int orientation) {
+    void setOrientation(@CardSlideView.Orientation int orientation) {
         mOrientation = orientation;
         mInitialSelectedPosition = mCurItem;
         getState().layoutChanged = true;
@@ -914,18 +934,6 @@ public class GalleryLayoutManager extends RecyclerView.LayoutManager implements 
 
     int getCurrentItem() {
         return mCurItem;
-    }
-
-    void setSnapHelper(SnapHelper snapHelper) {
-        if (mRecyclerView == null) {
-            return;
-        }
-        mSnapHelper = snapHelper;
-        mRecyclerView.setOnFlingListener(null);
-        mSnapHelper.attachToRecyclerView(mRecyclerView);
-        mInitialSelectedPosition = mCurItem;
-        getState().layoutChanged = true;
-        requestLayout();
     }
 
     void setLooper(boolean isLooper) {
@@ -946,25 +954,25 @@ public class GalleryLayoutManager extends RecyclerView.LayoutManager implements 
         mOnPageChangeListener = onPageChangeListener;
     }
 
-    public static class LayoutParams extends RecyclerView.LayoutParams {
+    private static class LayoutParams extends RecyclerView.LayoutParams {
 
-        public LayoutParams(Context c, AttributeSet attrs) {
+        LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
         }
 
-        public LayoutParams(int width, int height) {
+        LayoutParams(int width, int height) {
             super(width, height);
         }
 
-        public LayoutParams(ViewGroup.MarginLayoutParams source) {
+        LayoutParams(ViewGroup.MarginLayoutParams source) {
             super(source);
         }
 
-        public LayoutParams(ViewGroup.LayoutParams source) {
+        LayoutParams(ViewGroup.LayoutParams source) {
             super(source);
         }
 
-        public LayoutParams(RecyclerView.LayoutParams source) {
+        LayoutParams(RecyclerView.LayoutParams source) {
             super(source);
         }
     }
@@ -979,6 +987,9 @@ public class GalleryLayoutManager extends RecyclerView.LayoutManager implements 
             super.onScrolled(recyclerView, dx, dy);
             RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
             if (layoutManager == null) {
+                return;
+            }
+            if (mSnapHelper == null) {
                 return;
             }
             View snap = mSnapHelper.findSnapView(layoutManager);
@@ -1009,6 +1020,9 @@ public class GalleryLayoutManager extends RecyclerView.LayoutManager implements 
                 isDrag = false;
                 RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
                 if (layoutManager == null) {
+                    return;
+                }
+                if (mSnapHelper == null) {
                     return;
                 }
                 View snap = mSnapHelper.findSnapView(layoutManager);
