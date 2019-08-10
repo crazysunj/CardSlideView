@@ -2,7 +2,7 @@
 
 [![](https://img.shields.io/github/release/crazysunj/CardSlideView.svg) ](https://github.com/crazysunj/CardSlideView/releases)
 
-一行代码实现ViewPager卡片效果，支持无限循环，支持正常与卡片之间的切换
+一行代码实现ViewPager卡片效果，支持无限循环，支持正常与卡片之间的切换，随意变换，2.x版本采用RecyclerView实现
 
 想实现轮播效果的同学，可以参考[CrazyDaily](https://github.com/crazysunj/CrazyDaily "https://github.com/crazysunj/CrazyDaily")开源项目首页实现。
 
@@ -13,14 +13,8 @@
 ## 用法
 
 [1.x版本使用指南](README_1.0.md)
+
 [2.x版本使用指南](README_2.0.md)
-
-## 温馨提示
-大家可以利用RecyclerView实现相似效果，具体案例可参考开源项目[CrazyDaily](https://github.com/crazysunj/CrazyDaily)
-
-## 感谢
-
-[android-page-transition](https://github.com/xmuSistone/android-page-transition)
 
 ## 传送门
 
