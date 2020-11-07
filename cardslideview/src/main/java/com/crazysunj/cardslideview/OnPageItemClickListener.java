@@ -17,23 +17,12 @@ package com.crazysunj.cardslideview;
 
 import android.view.View;
 
-import androidx.annotation.NonNull;
-
 /**
- * 默认缩放效果，可自定义
+ * item点击事件，holder中设置无效
  *
  * @author sunjian
- * @date 2019-07-16 09:49
+ * @date 2020/11/6 下午5:44
  */
-class ScaleTransformer implements PageTransformer {
-
-    ScaleTransformer() {
-    }
-
-    @Override
-    public void transformPage(@NonNull View view, float offsetPercent, int orientation) {
-        float scale = 1 - 0.2f * Math.abs(offsetPercent);
-        view.setScaleX(scale);
-        view.setScaleY(scale);
-    }
+public interface OnPageItemClickListener<T> {
+    void onItemClick(View view, T data, int position);
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CircleLineIndicator">
+        <attr name="circle_line_indicator_line_width" format="dimension" />
+        <attr name="circle_line_indicator_radius" format="dimension" />
+        <attr name="circle_line_indicator_space" format="dimension" />
+        <attr name="circle_line_indicator_color_selected" format="color" />
+        <attr name="circle_line_indicator_color_unselected" format="color" />
+    </declare-styleable>
+</resources>

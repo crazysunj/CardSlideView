@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <com.crazysunj.cardslideview.CardSlideView
+        android:id="@+id/banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        app:card_item_margin_percent="-0.84"
+        app:card_item_rate="0.7"
+        app:card_loop="true"
+        app:card_page_mode="page"
+        app:card_side_offset_percent="0.24" />
+
+    <com.crazysunj.cardslide.CircleLineIndicator
+        android:id="@+id/indicator"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        app:circle_line_indicator_color_selected="#FFC057"
+        app:circle_line_indicator_color_unselected="#D8D8D8"
+        app:circle_line_indicator_line_width="10dp"
+        app:circle_line_indicator_radius="4dp"
+        app:circle_line_indicator_space="8dp" />
+</merge>

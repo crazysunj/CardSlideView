@@ -2,13 +2,23 @@
 
 [![](https://img.shields.io/github/release/crazysunj/CardSlideView.svg) ](https://github.com/crazysunj/CardSlideView/releases)
 
-一行代码实现ViewPager卡片效果，支持无限循环，支持正常与卡片之间的切换，随意变换，2.x版本采用RecyclerView实现
-
-想实现轮播效果的同学，可以参考[CrazyDaily](https://github.com/crazysunj/CrazyDaily "https://github.com/crazysunj/CrazyDaily")开源项目首页实现。
+一行代码实现ViewPager卡片效果，比ViewPager2更强大，底层同样是RecyclerView
 
 ## 效果
 
-![](https://github.com/crazysunj/crazysunj.github.io/blob/master/img/vp_card5.gif)
+![](https://github.com/crazysunj/crazysunj.github.io/blob/master/img/card_slide_2_2_0.gif)
+
+## 功能
+ * ItemDecoration
+ * 可设item之间间距，可做到叠加
+ * 可设各个view自身的padding和margin
+ * 横竖两个方向
+ * 无限循环
+ * page和linear两种滑动方式
+ * 百分比适配，但只会根据宽高其中一个维度适配
+ * 非无循环模式边界支持回弹，可动态设置是否开启
+
+想实现轮播效果的同学，1.x版本可以参考[CrazyDaily](https://github.com/crazysunj/CrazyDaily "https://github.com/crazysunj/CrazyDaily")开源项目首页实现，2.x版本可以参考本项目实例，还有炫酷的指示器、3D旋转和倒影效果哦
 
 ## 用法
 

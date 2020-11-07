@@ -1,19 +1,25 @@
 
 buildscript {
     repositories {
-        jcenter()
         google()
+        jcenter()
+        mavenCentral()
+//        maven{ url'http://maven.aliyun.com/nexus/content/groups/public/' }
+//        maven{ url'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.2'
-        classpath 'com.novoda:bintray-release:0.9.1'
+        classpath 'com.android.tools.build:gradle:3.6.4'
+        classpath 'com.novoda:bintray-release:0.9.2'
     }
 }
 
 allprojects {
     repositories {
-        jcenter()
         google()
+        jcenter()
+        mavenCentral()
+//        maven{ url'http://maven.aliyun.com/nexus/content/groups/public/' }
+//        maven{ url'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
     }
 }
 
@@ -25,7 +31,7 @@ ext {
     userOrg = 'twsunj'
     groupId = 'com.crazysunj'
     uploadName = 'CardSlideView'
-    publishVersion = '2.0.0'
+    publishVersion = '2.2.0'
     desc = 'CardSlideView For Android'
     website = 'https://github.com/crazysunj/CardSlideView'
     licences = ['Apache-2.0']

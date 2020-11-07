@@ -1,11 +1,11 @@
 apply plugin: 'com.android.library'
 apply plugin: 'bintray-release'
 android {
-    compileSdkVersion 28
+    compileSdkVersion 30
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 28
+        targetSdkVersion 30
         versionCode 1
         versionName rootProject.ext.publishVersion
     }
@@ -23,11 +23,10 @@ android {
 
 dependencies {
     compileOnly 'androidx.legacy:legacy-support-v4:1.0.0'
-    compileOnly 'androidx.recyclerview:recyclerview:1.0.0'
+    compileOnly 'androidx.recyclerview:recyclerview:1.1.0'
 }
 
 publish {
-
     artifactId = 'cardslideview'
     userOrg = rootProject.ext.userOrg
     groupId = rootProject.ext.groupId
