@@ -431,7 +431,7 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
      * @return 计算距离中心轴偏移百分比
      */
     private float calculateOffsetPercentToCenter(View child, float offset) {
-        final float distance = calculateDistanceToCenter(child, offset);
+        final int distance = calculateDistanceToCenter(child, offset);
         final OrientationHelper helper = getOrientationHelper();
         final int size = helper.getDecoratedMeasurement(child) + itemMargin;
         return distance * 1.f / size;
@@ -442,10 +442,10 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
      * @param offset view的滑动偏移量
      * @return 返回view距离中心轴的距离
      */
-    private float calculateDistanceToCenter(View child, float offset) {
+    private int calculateDistanceToCenter(View child, float offset) {
         final OrientationHelper helper = getOrientationHelper();
         final float centerToStart = helper.getTotalSpace() / 2.f + helper.getStartAfterPadding();
-        return helper.getDecoratedMeasurement(child) / 2.f + helper.getDecoratedStart(child) - centerToStart - offset;
+        return (int) (helper.getDecoratedMeasurement(child) / 2.f + helper.getDecoratedStart(child) - centerToStart - offset + 0.5f);
     }
 
     private int getHorizontalSpace() {
@@ -1050,7 +1050,7 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
             if (centerView == null) {
                 return false;
             }
-            int distanceToCenter = (int) calculateDistanceToCenter(centerView, 0);
+            int distanceToCenter = calculateDistanceToCenter(centerView, 0);
             boolean isIntercept = distanceToCenter != 0;
             if (isIntercept) {
                 if (mOrientation == LinearLayout.HORIZONTAL) {

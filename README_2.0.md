@@ -145,7 +145,7 @@ public static Bitmap convertReflection(@NonNull Bitmap originalImage, int viewWi
 ## gradle依赖
 
 ```
-implementation 'com.crazysunj:cardslideview:2.2.0'
+implementation 'com.crazysunj:cardslideview:2.2.1'
 同时还需要依赖自己的v4包和recyclerview包，androidx哦
 ```
 
