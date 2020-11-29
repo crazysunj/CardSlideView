@@ -17,6 +17,7 @@
  * page和linear两种滑动方式
  * 百分比适配，但只会根据宽高其中一个维度适配
  * 非无循环模式边界支持回弹，可动态设置是否开启
+ * 支持预加载
 
 想实现轮播效果的同学，1.x版本可以参考[CrazyDaily](https://github.com/crazysunj/CrazyDaily "https://github.com/crazysunj/CrazyDaily")开源项目首页实现，2.x版本可以参考本项目实例，还有炫酷的指示器、3D旋转和倒影效果哦
 

@@ -50,7 +50,7 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
      * 用于滑动记录
      */
     private State mState;
-    private InnerScrollListener mInnerScrollListener = new InnerScrollListener();
+    private final InnerScrollListener mInnerScrollListener = new InnerScrollListener();
 
     /**
      * 滑动方向
@@ -63,13 +63,15 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
     private PageTransformer mPageTransformer;
     private RecyclerView mRecyclerView;
 
-    private boolean isRebound;
+    private final boolean isRebound;
     private boolean isLooper;
     private boolean canScrollHorizontally;
     private boolean canScrollVertically;
-    private float itemMarginPercent;
+    private final float itemMarginPercent;
     private int itemMargin;
+    private int mOffscreenPageLimit;
     private OnPageScrollStateChangeListener mOnPageScrollStateChangeListener;
+    private int offsetEdgeSize;
 
     GalleryLayoutManager(int orientation, boolean isLooper, boolean isRebound, float itemMarginPercent) {
         mOrientation = orientation;
@@ -201,7 +203,6 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
                 mPageTransformer.transformPage(child, calculateOffsetPercentToCenter(child, 0), mOrientation);
             }
         }
-        mInnerScrollListener.onScrolled(mRecyclerView, 0, 0);
     }
 
     /**
@@ -211,8 +212,8 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
      */
     private void firstFillWithHorizontal(RecyclerView.Recycler recycler) {
         final OrientationHelper helper = getOrientationHelper();
-        final int leftEdge = helper.getStartAfterPadding();
-        final int rightEdge = helper.getEndAfterPadding();
+        final int leftEdge = helper.getStartAfterPadding() - offsetEdgeSize;
+        final int rightEdge = helper.getEndAfterPadding() + offsetEdgeSize;
         final int centerPosition = mInitialSelectedPosition;
         final int width = getHorizontalSpace();
         final int height = getVerticalSpace();
@@ -232,90 +233,11 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
         layoutDecoratedWithMargins(centerView, left, top, right, bottom);
         mFirstVisiblePosition = mLastVisiblePosition = centerPosition;
         itemMargin = (int) (itemMarginPercent * centerWidth);
+        offsetEdgeSize = mOffscreenPageLimit * (centerWidth + itemMargin);
         // 布局测量中心左边item
-        firstFillLeft(recycler, centerPosition - 1, left, leftEdge);
+        fillLeft(recycler, centerPosition - 1, left, leftEdge);
         // 布局测量中心右边item
-        firstFillRight(recycler, centerPosition + 1, right, rightEdge);
-    }
-
-    /**
-     * 布局测量中心左边item
-     *
-     * @param recycler RecyclerView.Recycler
-     * @param position 位置
-     * @param itemLeft view相对父布局左边距离
-     * @param leftEdge 总布局左边界，避免全部测量布局浪费资源，出父布局外就不用管了
-     */
-    private void firstFillLeft(RecyclerView.Recycler recycler, int position, int itemLeft, int leftEdge) {
-        final OrientationHelper helper = getOrientationHelper();
-        View itemView;
-        int left, top, right, bottom;
-        int itemWidth, itemHeight;
-        final int height = getVerticalSpace();
-        int itemRight = itemLeft - itemMargin;
-        // 这里不考虑item的margin和ItemDecoration，否则会出现bind而实际并没有add的情况
-        while (itemRight > leftEdge) {
-            if (position < 0) {
-                if (isLooper) {
-                    position = getItemCount() - 1;
-                } else {
-                    break;
-                }
-            }
-            itemView = recycler.getViewForPosition(position);
-            addView(itemView, 0);
-            measureChildWithMargins(itemView, 0, 0);
-            itemWidth = helper.getDecoratedMeasurement(itemView);
-            itemHeight = helper.getDecoratedMeasurementInOther(itemView);
-            right = itemRight;
-            left = right - itemWidth;
-            top = (int) (getPaddingTop() + (height - itemHeight) / 2.f);
-            bottom = top + itemHeight;
-            layoutDecoratedWithMargins(itemView, left, top, right, bottom);
-            itemRight = left - itemMargin;
-            mFirstVisiblePosition = position;
-            position--;
-        }
-    }
-
-    /**
-     * 布局测量中心右边item
-     *
-     * @param recycler  RecyclerView.Recycler
-     * @param position  位置
-     * @param itemRight view相对父布局右边距离
-     * @param rightEdge 总布局右边界
-     */
-    private void firstFillRight(RecyclerView.Recycler recycler, int position, int itemRight, int rightEdge) {
-        final int size = getItemCount();
-        final OrientationHelper helper = getOrientationHelper();
-        View itemView;
-        int left, top, right, bottom;
-        int itemWidth, itemHeight;
-        final int height = getVerticalSpace();
-        int itemLeft = itemRight + itemMargin;
-        while (itemLeft < rightEdge) {
-            if (position >= size) {
-                if (isLooper) {
-                    position = 0;
-                } else {
-                    break;
-                }
-            }
-            itemView = recycler.getViewForPosition(position);
-            addView(itemView);
-            measureChildWithMargins(itemView, 0, 0);
-            itemWidth = helper.getDecoratedMeasurement(itemView);
-            itemHeight = helper.getDecoratedMeasurementInOther(itemView);
-            left = itemLeft;
-            top = (int) (getPaddingTop() + (height - itemHeight) / 2.f);
-            right = left + itemWidth;
-            bottom = top + itemHeight;
-            layoutDecoratedWithMargins(itemView, left, top, right, bottom);
-            itemLeft = right + itemMargin;
-            mLastVisiblePosition = position;
-            position++;
-        }
+        fillRight(recycler, centerPosition + 1, right, rightEdge);
     }
 
     /**
@@ -342,46 +264,47 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
         layoutDecoratedWithMargins(centerView, left, top, right, bottom);
         mFirstVisiblePosition = mLastVisiblePosition = centerPosition;
         itemMargin = (int) (itemMarginPercent * itemHeight);
-        firstFillTop(recycler, centerPosition - 1, top, topEdge);
-        firstFillBottom(recycler, centerPosition + 1, bottom, bottomEdge);
+        fillTop(recycler, centerPosition - 1, top, topEdge);
+        fillBottom(recycler, centerPosition + 1, bottom, bottomEdge);
     }
 
     /**
-     * 布局测量中心上边item
+     * 布局测量中心右边item
      *
-     * @param recycler RecyclerView.Recycler recycler
-     * @param position 位置
-     * @param itemTop  view相对父布局上边距离
-     * @param topEdge  总布局上边界
+     * @param recycler  RecyclerView.Recycler
+     * @param position  位置
+     * @param itemRight view相对父布局右边距离
+     * @param rightEdge 总布局右边界
      */
-    private void firstFillTop(RecyclerView.Recycler recycler, int position, int itemTop, int topEdge) {
+    private void fillRight(RecyclerView.Recycler recycler, int position, int itemRight, int rightEdge) {
+        final int size = getItemCount();
         final OrientationHelper helper = getOrientationHelper();
         View itemView;
         int left, top, right, bottom;
         int itemWidth, itemHeight;
-        final int width = getHorizontalSpace();
-        int itemBottom = itemTop - itemMargin;
-        while (itemBottom > topEdge) {
-            if (position < 0) {
+        final int height = getVerticalSpace();
+        int itemLeft = itemRight;
+        while (itemLeft < rightEdge) {
+            if (position >= size) {
                 if (isLooper) {
-                    position = getItemCount() - 1;
+                    position = 0;
                 } else {
                     break;
                 }
             }
             itemView = recycler.getViewForPosition(position);
-            addView(itemView, 0);
+            addView(itemView);
             measureChildWithMargins(itemView, 0, 0);
-            itemWidth = helper.getDecoratedMeasurementInOther(itemView);
-            itemHeight = helper.getDecoratedMeasurement(itemView);
-            left = (int) (getPaddingLeft() + (width - itemWidth) / 2.f);
-            bottom = itemBottom;
-            top = itemBottom - itemHeight;
+            itemWidth = helper.getDecoratedMeasurement(itemView);
+            itemHeight = helper.getDecoratedMeasurementInOther(itemView);
+            left = itemLeft + itemMargin;
+            top = (int) (getPaddingTop() + (height - itemHeight) / 2.f);
             right = left + itemWidth;
+            bottom = top + itemHeight;
             layoutDecoratedWithMargins(itemView, left, top, right, bottom);
-            itemBottom = top - itemMargin;
-            mFirstVisiblePosition = position;
-            position--;
+            itemLeft = right;
+            mLastVisiblePosition = position;
+            position++;
         }
     }
 
@@ -393,14 +316,14 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
      * @param itemBottom view相对父布局下边距离
      * @param bottomEdge 总布局下边界
      */
-    private void firstFillBottom(RecyclerView.Recycler recycler, int position, int itemBottom, int bottomEdge) {
+    private void fillBottom(RecyclerView.Recycler recycler, int position, int itemBottom, int bottomEdge) {
         final OrientationHelper helper = getOrientationHelper();
         View itemView;
         int left, top, right, bottom;
         int itemWidth, itemHeight;
         final int width = getHorizontalSpace();
         final int size = getItemCount();
-        int itemTop = itemBottom + itemMargin;
+        int itemTop = itemBottom;
         while (itemTop < bottomEdge) {
             if (position >= size) {
                 if (isLooper) {
@@ -415,13 +338,92 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
             itemWidth = helper.getDecoratedMeasurementInOther(itemView);
             itemHeight = helper.getDecoratedMeasurement(itemView);
             left = (int) (getPaddingLeft() + (width - itemWidth) / 2.f);
-            top = itemTop;
+            top = itemTop + itemMargin;
             right = left + itemWidth;
             bottom = top + itemHeight;
             layoutDecoratedWithMargins(itemView, left, top, right, bottom);
-            itemTop = bottom + itemMargin;
+            itemTop = bottom;
             mLastVisiblePosition = position;
             position++;
+        }
+    }
+
+    /**
+     * 布局测量中心左边item
+     *
+     * @param recycler RecyclerView.Recycler
+     * @param position 位置
+     * @param itemLeft view相对父布局左边距离
+     * @param leftEdge 总布局左边界，避免全部测量布局浪费资源，出父布局外就不用管了
+     */
+    private void fillLeft(RecyclerView.Recycler recycler, int position, int itemLeft, int leftEdge) {
+        final OrientationHelper helper = getOrientationHelper();
+        View itemView;
+        int left, top, right, bottom;
+        int itemWidth, itemHeight;
+        final int height = getVerticalSpace();
+        int itemRight = itemLeft;
+        // 这里不考虑item的margin和ItemDecoration，否则会出现bind而实际并没有add的情况
+        while (itemRight > leftEdge) {
+            if (position < 0) {
+                if (isLooper) {
+                    position = getItemCount() - 1;
+                } else {
+                    break;
+                }
+            }
+            itemView = recycler.getViewForPosition(position);
+            addView(itemView, 0);
+            measureChildWithMargins(itemView, 0, 0);
+            itemWidth = helper.getDecoratedMeasurement(itemView);
+            itemHeight = helper.getDecoratedMeasurementInOther(itemView);
+            right = itemRight - itemMargin;
+            left = right - itemWidth;
+            top = (int) (getPaddingTop() + (height - itemHeight) / 2.f);
+            bottom = top + itemHeight;
+            layoutDecoratedWithMargins(itemView, left, top, right, bottom);
+            itemRight = left;
+            mFirstVisiblePosition = position;
+            position--;
+        }
+    }
+
+    /**
+     * 布局测量中心上边item
+     *
+     * @param recycler RecyclerView.Recycler recycler
+     * @param position 位置
+     * @param itemTop  view相对父布局上边距离
+     * @param topEdge  总布局上边界
+     */
+    private void fillTop(RecyclerView.Recycler recycler, int position, int itemTop, int topEdge) {
+        final OrientationHelper helper = getOrientationHelper();
+        View itemView;
+        int left, top, right, bottom;
+        int itemWidth, itemHeight;
+        final int width = getHorizontalSpace();
+        int itemBottom = itemTop;
+        while (itemBottom > topEdge) {
+            if (position < 0) {
+                if (isLooper) {
+                    position = getItemCount() - 1;
+                } else {
+                    break;
+                }
+            }
+            itemView = recycler.getViewForPosition(position);
+            addView(itemView, 0);
+            measureChildWithMargins(itemView, 0, 0);
+            itemWidth = helper.getDecoratedMeasurementInOther(itemView);
+            itemHeight = helper.getDecoratedMeasurement(itemView);
+            left = (int) (getPaddingLeft() + (width - itemWidth) / 2.f);
+            bottom = itemBottom - itemMargin;
+            top = bottom - itemHeight;
+            right = left + itemWidth;
+            layoutDecoratedWithMargins(itemView, left, top, right, bottom);
+            itemBottom = top;
+            mFirstVisiblePosition = position;
+            position--;
         }
     }
 
@@ -431,7 +433,7 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
      * @return 计算距离中心轴偏移百分比
      */
     private float calculateOffsetPercentToCenter(View child, float offset) {
-        final int distance = calculateDistanceToCenter(child, offset);
+        final float distance = calculateDistanceToCenter(child, offset);
         final OrientationHelper helper = getOrientationHelper();
         final int size = helper.getDecoratedMeasurement(child) + itemMargin;
         return distance * 1.f / size;
@@ -445,7 +447,7 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
     private int calculateDistanceToCenter(View child, float offset) {
         final OrientationHelper helper = getOrientationHelper();
         final float centerToStart = helper.getTotalSpace() / 2.f + helper.getStartAfterPadding();
-        return (int) (helper.getDecoratedMeasurement(child) / 2.f + helper.getDecoratedStart(child) - centerToStart - offset + 0.5f);
+        return (int) (helper.getDecoratedMeasurement(child) / 2.f + helper.getDecoratedStart(child) - centerToStart - offset);
     }
 
     private int getHorizontalSpace() {
@@ -503,30 +505,48 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
         if (getChildCount() == 0 || dx == 0) {
             return 0;
         }
-        int offset = -dx;
+        int offset = scrollBy(dx, recycler);
+        offsetChildrenHorizontal(offset);
+        return -offset;
+    }
+
+    @Override
+    public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
+        if (mOrientation == LinearLayout.HORIZONTAL) {
+            return 0;
+        }
+        if (getChildCount() == 0 || dy == 0) {
+            return 0;
+        }
+        int offset = scrollBy(dy, recycler);
+        offsetChildrenVertical(offset);
+        return -offset;
+    }
+
+    private int scrollBy(int dist, RecyclerView.Recycler recycler) {
+        int offset = -dist;
         final OrientationHelper helper = getOrientationHelper();
         final int centerToStart = (helper.getEndAfterPadding() - helper.getStartAfterPadding()) / 2 + helper.getStartAfterPadding();
         View child;
-        if (dx > 0) {
+        if (dist > 0) {
             child = getChildAt(getChildCount() - 1);
             if (child != null && mLastVisiblePosition == getItemCount() - 1 && !isLooper) {
-                // 计算全部加载完后item的偏移量，右边会留出空隙，回弹距离为滑动边的三分之一，暂时不支持回弹距离设置
+                // 计算全部加载完后item的偏移量，结束边会留出空隙，回弹距离为滑动边的三分之一，暂时不支持回弹距离设置
                 final int diff = helper.getDecoratedMeasurement(child) / 2 + helper.getDecoratedStart(child) - centerToStart + (isRebound ? helper.getTotalSpace() / 3 : 0);
-                offset = -Math.max(0, Math.min(dx, diff));
+                offset = -Math.max(0, Math.min(dist, diff));
             }
         } else {
             child = getChildAt(0);
             if (mFirstVisiblePosition == 0 && child != null && !isLooper) {
-                // 计算首次加载item的偏移量，左边会留出空隙，回弹距离为滑动边的三分之一，暂时不支持回弹距离设置
+                // 计算首次加载item的偏移量，起始边会留出空隙，回弹距离为滑动边的三分之一，暂时不支持回弹距离设置
                 final int diff = helper.getDecoratedMeasurement(child) / 2 + helper.getDecoratedStart(child) - centerToStart - (isRebound ? helper.getTotalSpace() / 3 : 0);
-                offset = -Math.min(0, Math.max(dx, diff));
+                offset = -Math.min(0, Math.max(dist, diff));
             }
         }
         // 记录偏移量
         getState().scrollOffset = -offset;
         fill(recycler, -offset);
-        offsetChildrenHorizontal(offset);
-        return -offset;
+        return offset;
     }
 
     private void fill(RecyclerView.Recycler recycler, int scrollOffset) {
@@ -558,144 +578,39 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
      */
     private void fillWithHorizontal(RecyclerView.Recycler recycler, int offset) {
         final OrientationHelper helper = getOrientationHelper();
-        final int leftEdge = helper.getStartAfterPadding();
-        final int rightEdge = helper.getEndAfterPadding();
+        final int leftEdge = helper.getStartAfterPadding() - offsetEdgeSize;
+        final int rightEdge = helper.getEndAfterPadding() + offsetEdgeSize;
         if (getChildCount() > 0) {
             if (offset >= 0) {
-                removeAndRecyclerWithLeft(recycler, leftEdge + offset);
+                removeAndRecyclerWithStart(recycler, leftEdge + offset);
             } else {
-                removeAndRecyclerWithRight(recycler, rightEdge + offset);
+                removeAndRecyclerWithEnd(recycler, rightEdge + offset);
             }
         }
         if (offset >= 0) {
             // 右滑
-            fillRight(recycler, rightEdge + offset);
+            int position = mFirstVisiblePosition;
+            int itemRight = -1;
+            if (getChildCount() != 0) {
+                View lastView = getChildAt(getChildCount() - 1);
+                if (lastView != null) {
+                    position = getPosition(lastView) + 1;
+                    itemRight = helper.getDecoratedEnd(lastView);
+                }
+            }
+            fillRight(recycler, position, itemRight, rightEdge + offset);
         } else {
             // 左滑
-            fillLeft(recycler, leftEdge + offset);
-        }
-    }
-
-    private void fillLeft(RecyclerView.Recycler recycler, int leftEdge) {
-        final OrientationHelper helper = getOrientationHelper();
-        int position = mFirstVisiblePosition;
-        int itemLeft = -1;
-        View itemView;
-        int itemWidth, itemHeight;
-        final int height = getVerticalSpace();
-        int left, top, right, bottom;
-        if (getChildCount() > 0) {
-            View firstView = getChildAt(0);
-            if (firstView != null) {
-                position = getPosition(firstView) - 1;
-                itemLeft = helper.getDecoratedStart(firstView);
-            }
-        }
-        int itemRight = itemLeft - itemMargin;
-        while (itemRight > leftEdge) {
-            if (position < 0) {
-                if (isLooper) {
-                    position = getItemCount() - 1;
-                } else {
-                    break;
+            int position = mFirstVisiblePosition;
+            int itemLeft = -1;
+            if (getChildCount() > 0) {
+                View firstView = getChildAt(0);
+                if (firstView != null) {
+                    position = getPosition(firstView) - 1;
+                    itemLeft = helper.getDecoratedStart(firstView);
                 }
             }
-            itemView = recycler.getViewForPosition(position);
-            addView(itemView, 0);
-            measureChildWithMargins(itemView, 0, 0);
-            itemWidth = helper.getDecoratedMeasurement(itemView);
-            itemHeight = helper.getDecoratedMeasurementInOther(itemView);
-            right = itemRight;
-            left = right - itemWidth;
-            top = (int) (getPaddingTop() + (height - itemHeight) / 2.f);
-            bottom = top + itemHeight;
-            layoutDecoratedWithMargins(itemView, left, top, right, bottom);
-            itemRight = left - itemMargin;
-            mFirstVisiblePosition = position;
-            position--;
-        }
-    }
-
-    private void fillRight(RecyclerView.Recycler recycler, int rightEdge) {
-        final OrientationHelper helper = getOrientationHelper();
-        int position = mFirstVisiblePosition;
-        int itemRight = -1;
-        View itemView;
-        int itemWidth, itemHeight;
-        final int height = getVerticalSpace();
-        int left, top, right, bottom;
-        if (getChildCount() != 0) {
-            View lastView = getChildAt(getChildCount() - 1);
-            if (lastView != null) {
-                position = getPosition(lastView) + 1;
-                itemRight = helper.getDecoratedEnd(lastView);
-            }
-        }
-        final int size = getItemCount();
-        int itemLeft = itemRight + itemMargin;
-        while (itemLeft < rightEdge) {
-            if (position >= size) {
-                if (isLooper) {
-                    position = 0;
-                } else {
-                    break;
-                }
-            }
-            itemView = recycler.getViewForPosition(position);
-            addView(itemView);
-            measureChildWithMargins(itemView, 0, 0);
-            itemWidth = helper.getDecoratedMeasurement(itemView);
-            itemHeight = helper.getDecoratedMeasurementInOther(itemView);
-            left = itemLeft;
-            top = (int) (getPaddingTop() + (height - itemHeight) / 2.f);
-            right = left + itemWidth;
-            bottom = top + itemHeight;
-            layoutDecoratedWithMargins(itemView, left, top, right, bottom);
-            itemLeft = right + itemMargin;
-            mLastVisiblePosition = position;
-            position++;
-        }
-    }
-
-    private void removeAndRecyclerWithRight(RecyclerView.Recycler recycler, int rightEdge) {
-        View child;
-        final OrientationHelper helper = getOrientationHelper();
-        for (int i = getChildCount() - 1; i >= 0; i--) {
-            child = getChildAt(i);
-            if (child != null && helper.getDecoratedStart(child) > rightEdge) {
-                // 离开屏幕右侧
-                removeAndRecycleView(child, recycler);
-                if (isLooper) {
-                    if (mLastVisiblePosition == 0) {
-                        mLastVisiblePosition = getItemCount();
-                    }
-                }
-                mLastVisiblePosition--;
-            } else {
-                break;
-            }
-        }
-    }
-
-    private void removeAndRecyclerWithLeft(RecyclerView.Recycler recycler, int leftEdge) {
-        View child;
-        final OrientationHelper helper = getOrientationHelper();
-        for (int i = 0; i < getChildCount(); i++) {
-            child = getChildAt(i);
-            if (child != null && helper.getDecoratedEnd(child) < leftEdge) {
-                // 离开屏幕左侧，移除view，回收资源
-                removeAndRecycleView(child, recycler);
-                if (isLooper) {
-                    if (mFirstVisiblePosition >= getItemCount() - 1) {
-                        mFirstVisiblePosition = -1;
-                    }
-                }
-                mFirstVisiblePosition++;
-                // 被移除了，调整index
-                i--;
-            } else {
-                break;
-            }
+            fillLeft(recycler, position, itemLeft, leftEdge + offset);
         }
     }
 
@@ -712,107 +627,45 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
         if (getChildCount() > 0) {
             if (offset >= 0) {
                 // 下滑
-                removeAndRecyclerWithTop(recycler, topEdge + offset);
+                removeAndRecyclerWithStart(recycler, topEdge + offset);
             } else {
                 // 上滑
-                removeAndRecyclerWithBottom(recycler, bottomEdge + offset);
+                removeAndRecyclerWithEnd(recycler, bottomEdge + offset);
             }
 
         }
         if (offset >= 0) {
-            fillBottom(recycler, bottomEdge + offset);
+            int position = mFirstVisiblePosition;
+            int itemBottom = -1;
+            if (getChildCount() != 0) {
+                View lastView = getChildAt(getChildCount() - 1);
+                if (lastView != null) {
+                    position = getPosition(lastView) + 1;
+                    itemBottom = helper.getDecoratedEnd(lastView);
+                }
+            }
+            fillBottom(recycler, position, itemBottom, bottomEdge + offset);
         } else {
-            fillTop(recycler, topEdge + offset);
-        }
-    }
-
-    private void fillTop(RecyclerView.Recycler recycler, int topEdge) {
-        final OrientationHelper helper = getOrientationHelper();
-        int position = mFirstVisiblePosition;
-        int itemTop = -1;
-        int itemWidth, itemHeight;
-        int width = getHorizontalSpace();
-        int left, top, right, bottom;
-        View itemView;
-        if (getChildCount() > 0) {
-            View firstView = getChildAt(0);
-            if (firstView != null) {
-                position = getPosition(firstView) - 1;
-                itemTop = helper.getDecoratedStart(firstView);
-            }
-        }
-        int itemBottom = itemTop - itemMargin;
-        while (itemBottom > topEdge) {
-            if (position < 0) {
-                if (isLooper) {
-                    position = getItemCount() - 1;
-                } else {
-                    break;
+            int position = mFirstVisiblePosition;
+            int itemTop = -1;
+            if (getChildCount() > 0) {
+                View firstView = getChildAt(0);
+                if (firstView != null) {
+                    position = getPosition(firstView) - 1;
+                    itemTop = helper.getDecoratedStart(firstView);
                 }
             }
-            itemView = recycler.getViewForPosition(position);
-            addView(itemView, 0);
-            measureChildWithMargins(itemView, 0, 0);
-            itemWidth = helper.getDecoratedMeasurementInOther(itemView);
-            itemHeight = helper.getDecoratedMeasurement(itemView);
-            left = (int) (getPaddingLeft() + (width - itemWidth) / 2.f);
-            bottom = itemBottom;
-            right = left + itemWidth;
-            top = bottom - itemHeight;
-            layoutDecoratedWithMargins(itemView, left, top, right, bottom);
-            itemBottom = top - itemMargin;
-            mFirstVisiblePosition = position;
-            position--;
+            fillTop(recycler, position, itemTop, topEdge + offset);
         }
     }
 
-    private void fillBottom(RecyclerView.Recycler recycler, int bottomEdge) {
-        final OrientationHelper helper = getOrientationHelper();
-        int position = mFirstVisiblePosition;
-        int itemBottom = -1;
-        int itemWidth, itemHeight;
-        int width = getHorizontalSpace();
-        int left, top, right, bottom;
-        View itemView;
-        if (getChildCount() != 0) {
-            View lastView = getChildAt(getChildCount() - 1);
-            if (lastView != null) {
-                position = getPosition(lastView) + 1;
-                itemBottom = helper.getDecoratedEnd(lastView);
-            }
-        }
-        final int size = getItemCount();
-        int itemTop = itemBottom + itemMargin;
-        while (itemTop < bottomEdge) {
-            if (position >= size) {
-                if (isLooper) {
-                    position = 0;
-                } else {
-                    break;
-                }
-            }
-            itemView = recycler.getViewForPosition(position);
-            addView(itemView);
-            measureChildWithMargins(itemView, 0, 0);
-            itemWidth = helper.getDecoratedMeasurementInOther(itemView);
-            itemHeight = helper.getDecoratedMeasurement(itemView);
-            left = (int) (getPaddingLeft() + (width - itemWidth) / 2.f);
-            top = itemTop;
-            right = left + itemWidth;
-            bottom = top + itemHeight;
-            layoutDecoratedWithMargins(itemView, left, top, right, bottom);
-            itemTop = bottom + itemMargin;
-            mLastVisiblePosition = position;
-            position++;
-        }
-    }
-
-    private void removeAndRecyclerWithBottom(RecyclerView.Recycler recycler, int bottomEdge) {
-        final OrientationHelper helper = getOrientationHelper();
+    private void removeAndRecyclerWithEnd(RecyclerView.Recycler recycler, int endEdge) {
         View child;
+        final OrientationHelper helper = getOrientationHelper();
         for (int i = getChildCount() - 1; i >= 0; i--) {
             child = getChildAt(i);
-            if (child != null && helper.getDecoratedStart(child) > bottomEdge) {
+            if (child != null && helper.getDecoratedStart(child) - itemMargin > endEdge) {
+                // 离开屏幕结束
                 removeAndRecycleView(child, recycler);
                 if (isLooper) {
                     if (mLastVisiblePosition == 0) {
@@ -826,13 +679,13 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    private void removeAndRecyclerWithTop(RecyclerView.Recycler recycler, int topEdge) {
-        final OrientationHelper helper = getOrientationHelper();
+    private void removeAndRecyclerWithStart(RecyclerView.Recycler recycler, int startEdge) {
         View child;
-        for (int i = 0; i < getChildCount(); i++) {
+        final OrientationHelper helper = getOrientationHelper();
+        for (int i = 0, size = getChildCount(); i < size; i++) {
             child = getChildAt(i);
-            if (child != null && helper.getDecoratedEnd(child) < topEdge) {
-                // 移除顶部屏幕
+            if (child != null && helper.getDecoratedEnd(child) + itemMargin < startEdge) {
+                // 离开屏幕起始，移除view，回收资源
                 removeAndRecycleView(child, recycler);
                 if (isLooper) {
                     if (mFirstVisiblePosition >= getItemCount() - 1) {
@@ -840,39 +693,12 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
                     }
                 }
                 mFirstVisiblePosition++;
+                // 被移除了，调整index
                 i--;
             } else {
                 break;
             }
         }
-    }
-
-    @Override
-    public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
-        if (getChildCount() == 0 || dy == 0) {
-            return 0;
-        }
-        int offset = -dy;
-        final OrientationHelper helper = getOrientationHelper();
-        int centerToStart = (helper.getEndAfterPadding() - helper.getStartAfterPadding()) / 2 + helper.getStartAfterPadding();
-        View child;
-        if (dy > 0) {
-            child = getChildAt(getChildCount() - 1);
-            if (child != null && mLastVisiblePosition == getItemCount() - 1 && !isLooper) {
-                final int diff = helper.getDecoratedMeasurement(child) / 2 + helper.getDecoratedStart(child) - centerToStart + (isRebound ? helper.getTotalSpace() / 3 : 0);
-                offset = -Math.max(0, Math.min(dy, diff));
-            }
-        } else {
-            child = getChildAt(0);
-            if (mFirstVisiblePosition == 0 && child != null && !isLooper) {
-                final int diff = helper.getDecoratedMeasurement(child) / 2 + helper.getDecoratedStart(child) - centerToStart - (isRebound ? helper.getTotalSpace() / 3 : 0);
-                offset = -Math.min(0, Math.max(dy, diff));
-            }
-        }
-        getState().scrollOffset = -offset;
-        fill(recycler, -offset);
-        offsetChildrenVertical(offset);
-        return -offset;
     }
 
     @Override
@@ -927,12 +753,10 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
         }
         final OrientationHelper helper = getOrientationHelper();
         final int childSize = helper.getDecoratedMeasurement(centerView);
-        final int itemDist = (int) (childSize * (1.f + itemMarginPercent) + 0.5f);
+        final int itemDist = childSize + (int) (childSize * itemMarginPercent);
         int dist = count * itemDist;
         final int edge = direction == LAYOUT_END ? helper.getDecoratedEnd(centerView) : helper.getDecoratedStart(centerView);
-        float offset = (helper.getTotalSpace() + childSize * direction) / 2.f;
-        final int diff = (int) (offset - edge);
-        dist -= diff * direction;
+        dist -= ((int) ((helper.getTotalSpace() + childSize * direction) / 2.f) - edge) * direction;
         if (mOrientation == LinearLayout.HORIZONTAL) {
             recyclerView.smoothScrollBy(dist * direction, 0);
             return;
@@ -975,6 +799,18 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
 
     void setOnPageChangeListener(OnPageChangeListener onPageChangeListener) {
         mOnPageChangeListener = onPageChangeListener;
+    }
+
+    /**
+     * 设置预加载数量
+     *
+     * @param limit 预加载数的一半，例如预加载数是1，那么两边均会预加载1页
+     */
+    void setOffscreenPageLimit(int limit) {
+        if (limit < 0) {
+            limit = 0;
+        }
+        mOffscreenPageLimit = limit;
     }
 
     private static class LayoutParams extends RecyclerView.LayoutParams {
@@ -1054,10 +890,10 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
             boolean isIntercept = distanceToCenter != 0;
             if (isIntercept) {
                 if (mOrientation == LinearLayout.HORIZONTAL) {
-                    mRecyclerView.smoothScrollBy(distanceToCenter, 0, new DecelerateInterpolator(), 50);
+                    mRecyclerView.smoothScrollBy(distanceToCenter, 0, new DecelerateInterpolator());
                     return true;
                 }
-                mRecyclerView.smoothScrollBy(0, distanceToCenter, new DecelerateInterpolator(), 50);
+                mRecyclerView.smoothScrollBy(0, distanceToCenter, new DecelerateInterpolator());
                 return true;
             }
             return false;
@@ -1095,7 +931,7 @@ class GalleryLayoutManager extends RecyclerView.LayoutManager {
                     int lastRight = helper.getDecoratedEnd(lastView);
                     final int leftEdge = helper.getStartAfterPadding();
                     final int rightEdge = helper.getEndAfterPadding();
-                    final int offset = (int) (((rightEdge - leftEdge - helper.getDecoratedMeasurement(centerView)) / 2.f + 0.5f) - itemMargin);
+                    final int offset = (int) (((rightEdge - leftEdge - helper.getDecoratedMeasurement(centerView)) / 2.f) - itemMargin);
                     if ((lastLeft < leftEdge + offset && lastRight <= leftEdge + offset) || (lastLeft >= rightEdge - offset && lastRight > rightEdge - offset)) {
                         dispatchScrollSelected(selectedPosition);
                         return;

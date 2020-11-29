@@ -31,7 +31,7 @@ ext {
     userOrg = 'twsunj'
     groupId = 'com.crazysunj'
     uploadName = 'CardSlideView'
-    publishVersion = '2.2.1'
+    publishVersion = '2.3.0'
     desc = 'CardSlideView For Android'
     website = 'https://github.com/crazysunj/CardSlideView'
     licences = ['Apache-2.0']

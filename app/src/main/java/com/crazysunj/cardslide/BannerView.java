@@ -21,9 +21,6 @@ import java.util.List;
 
 
 /**
- * banner控件，基于RecyclerView，由于还未使用androidX，没用上ViewPager2，完全靠摸索调试自测
- * 发现任何展示错误，请联系我，描述场景以及错误异常
- *
  * @author sunjian
  * @date 2019-12-30 10:09
  */

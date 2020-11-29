@@ -5,6 +5,7 @@
     <attr name="card_rebound" format="boolean" />
     <attr name="card_side_offset_percent" format="float" />
     <attr name="card_item_rate" format="float" />
+    <attr name="card_page_limit" format="integer" />
     <attr name="card_page_mode" format="enum">
         <enum name="linear" value="0" />
         <enum name="page" value="1" />
@@ -18,5 +19,6 @@
         <attr name="android:orientation" />
         <attr name="card_page_mode" />
         <attr name="card_rebound" />
+        <attr name="card_page_limit" />
     </declare-styleable>
 </resources>

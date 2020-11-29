@@ -141,6 +141,8 @@ public class CardSlideView<T> extends FrameLayout {
         // item之间间距，可设负值（叠加），百分比是相对自身宽度或高度
         final float itemMarginPercent;
         final boolean isRebound;
+        // 预加载数量，默认0
+        final int pageLimit;
         if (attrs != null) {
             TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.CardSlideView);
             mSideOffsetPercent = ta.getFloat(R.styleable.CardSlideView_card_side_offset_percent, 0.25f);
@@ -150,6 +152,7 @@ public class CardSlideView<T> extends FrameLayout {
             itemMarginPercent = Math.min(1, Math.max(-1, ta.getFloat(R.styleable.CardSlideView_card_item_margin_percent, 0f)));
             orientation = ta.getInt(R.styleable.CardSlideView_android_orientation, LinearLayout.HORIZONTAL);
             cardMode = ta.getInt(R.styleable.CardSlideView_card_page_mode, MODE_PAGE);
+            pageLimit = ta.getInteger(R.styleable.CardSlideView_card_page_limit, 0);
             ta.recycle();
         } else {
             mSideOffsetPercent = 0.25f;
@@ -159,6 +162,7 @@ public class CardSlideView<T> extends FrameLayout {
             itemMarginPercent = 0;
             orientation = LinearLayout.HORIZONTAL;
             cardMode = MODE_PAGE;
+            pageLimit = 0;
         }
         mSideOffsetPercent = Math.min(1, Math.max(0, mSideOffsetPercent));
         mCardListView = new InnerRecyclerView(context);
@@ -169,6 +173,7 @@ public class CardSlideView<T> extends FrameLayout {
         mCardListView.setItemMarginPercent(itemMarginPercent);
         addView(mCardListView);
         mLayoutManager = new GalleryLayoutManager(orientation, mIsLoop, isRebound, itemMarginPercent);
+        mLayoutManager.setOffscreenPageLimit(pageLimit);
         mLayoutManager.setItemTransformer(new DefaultTransformer());
         mLayoutManager.attachToRecyclerView(mCardListView);
     }
@@ -316,8 +321,12 @@ public class CardSlideView<T> extends FrameLayout {
         mLayoutManager.setItemTransformer(pageTransformer);
     }
 
-    public void setOnPageChangeListener(OnPageChangeListener onPageChangeListener) {
-        mLayoutManager.setOnPageChangeListener(onPageChangeListener);
+    public void setOnPageScrollStateChangeListener(OnPageScrollStateChangeListener listener) {
+        mLayoutManager.setOnPageScrollStateChangeListener(listener);
+    }
+
+    public void setOnPageChangeListener(OnPageChangeListener listener) {
+        mLayoutManager.setOnPageChangeListener(listener);
     }
 
     public void setOnPageItemClickListener(OnPageItemClickListener<T> listener) {
@@ -456,7 +465,7 @@ public class CardSlideView<T> extends FrameLayout {
                         if (centerView != null) {
                             final OrientationHelper helper = galleryLayoutManager.getOrientationHelper();
                             final int childSize = helper.getDecoratedMeasurement(centerView);
-                            final int itemDist = (int) (childSize * (1.f + itemMarginPercent) + 0.5f);
+                            final int itemDist = childSize + (int) (childSize * itemMarginPercent);
                             final int orientation = galleryLayoutManager.getOrientation();
                             final int velocity = orientation == LinearLayout.HORIZONTAL ? velocityX : velocityY;
                             final int count = mode == MODE_PAGE ? 1 : (int) (getDist(velocityX, velocityY, orientation) / itemDist * countRate);
@@ -470,9 +479,7 @@ public class CardSlideView<T> extends FrameLayout {
                                 direction = GalleryLayoutManager.LAYOUT_START;
                                 edge = helper.getDecoratedStart(centerView);
                             }
-                            float offset = (helper.getTotalSpace() + childSize * direction) / 2.f;
-                            final int diff = (int) (offset - edge);
-                            dist -= diff * direction;
+                            dist -= ((int) ((helper.getTotalSpace() + childSize * direction) / 2.f) - edge) * direction;
                             if (orientation == LinearLayout.HORIZONTAL) {
                                 smoothScrollBy(dist * direction, 0);
                                 return true;

@@ -135,6 +135,8 @@ public static Bitmap convertReflection(@NonNull Bitmap originalImage, int viewWi
 <attr name="card_side_offset_percent" format="float" />
 // item的宽高比
 <attr name="card_item_rate" format="float" />
+// 预加载数量，默认0
+<attr name="card_page_limit" format="integer" />
 // 滑动模式，page-类似ViewPager，linear-类似平时RecyclerView(有作滑动优化)
 <attr name="card_page_mode" format="enum">
     <enum name="linear" value="0" />
@@ -145,7 +147,7 @@ public static Bitmap convertReflection(@NonNull Bitmap originalImage, int viewWi
 ## gradle依赖
 
 ```
-implementation 'com.crazysunj:cardslideview:2.2.1'
+implementation 'com.crazysunj:cardslideview:2.3.0'
 同时还需要依赖自己的v4包和recyclerview包，androidx哦
 ```
 

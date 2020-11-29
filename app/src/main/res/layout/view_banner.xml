@@ -13,6 +13,7 @@
         app:card_item_margin_percent="-0.84"
         app:card_item_rate="0.7"
         app:card_loop="true"
+        app:card_page_limit="1"
         app:card_page_mode="page"
         app:card_side_offset_percent="0.24" />
 
