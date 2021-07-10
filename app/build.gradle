@@ -29,9 +29,9 @@ dependencies {
 //    implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'com.github.bumptech.glide:glide:4.11.0'
-    implementation('jp.wasabeef:glide-transformations:3.3.0') {
-        exclude group: 'com.github.bumptech.glide', module: 'glide'
-    }
+//    implementation('jp.wasabeef:glide-transformations:3.3.0') {
+//        exclude group: 'com.github.bumptech.glide', module: 'glide'
+//    }
     testImplementation 'junit:junit:4.13'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
